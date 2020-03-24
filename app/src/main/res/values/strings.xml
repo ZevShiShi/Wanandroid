@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Wan android</string>
+    <string name="app_author">本app由Zev独立开发</string>
+    <string name="app_login">登\t录</string>
+    <string name="app_go_reg">去注册</string>
+    <string name="app_go_login">去登录</string>
+    <string name="app_register">注册</string>
+    <string name="app_input_user">请输入用户名</string>
+    <string name="app_input_password">请输入密码</string>
+    <string name="app_input_repassword">请再次输入密码</string>
+    <string name="my_score">我的积分</string>
+    <string name="link_copy">复制链接</string>
+    <string name="link_open">浏览器打开</string>
+    <string name="link_edit">编辑</string>
+    <string name="link_delete">删除</string>
+    <string name="link_title">网站标题</string>
+    <string name="link_url">网站链接</string>
+    <string name="yes">确定</string>
+    <string name="no">取消</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/fl_web_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <view
+        android:id="@+id/pb_btn"
+        class="mbanje.kurt.fabbutton.FabButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="50dp"
+        android:color="@color/white"
+        android:indeterminate="false"
+        android:max="100"
+        android:src="@drawable/pb_left_arrow"
+        app:fbb_autoStart="true"
+        app:fbb_endBitmap="@drawable/pb_left_arrow"
+        app:fbb_hideProgressOnComplete="true"
+        app:fbb_progressColor="@color/tool_bar_color"
+        app:fbb_progressWidthRatio="0.1"
+        app:fbb_showEndBitmap="true"
+        app:fbb_showShadow="true" />
+</FrameLayout>

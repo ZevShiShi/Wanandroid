@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3FA862</color>
+    <color name="colorPrimaryDark">#3FA862</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="white">#FFFFFF</color>
+    <color name="tran_white">#80FFFFFF</color>
+    <color name="pb_white">#26FFFFFF</color>
+    <color name="navigation_unselect">#e8e8e8</color>
+    <color name="tool_bar_color">#007aff</color>
+    <color name="pb_score">#26007aff</color>
+    <color name="press_color">#4dbfbfbf</color>
+    <color name="pop_bg">#B3000000</color>
+    <color name="color_dc5c1a">#dc5c1a</color>
+    <color name="color_313131">#313131</color>
+
+
+    <color name="flow_unselect">#ebebeb</color>
+    <color name="flow_select">#c5caca</color>
+    <color name="color_dbdbdb">#dbdbdb</color>
+    <color name="color_ebebeb">#ebebeb</color>
+    <color name="color_107eb7">#107eb7</color>
+    <color name="color_ff3f00">#ff3f00</color>
+    <color name="color_eeeded">#eeeded</color>
+
+
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--pb背景样式-->
+    <item
+        android:id="@android:id/background"
+        android:drawable="@color/pb_white" />
+    <!--pb进度条样式-->
+    <item android:id="@android:id/progress">
+        <scale
+            android:drawable="@color/pb_score"
+            android:scaleWidth="100%" />
+    </item>
+</layer-list>
