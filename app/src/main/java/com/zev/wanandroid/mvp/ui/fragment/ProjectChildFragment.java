@@ -17,21 +17,28 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerProjectChildComponent;
 import com.zev.wanandroid.mvp.contract.ProjectChildContract;
 import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.ProjectChildPresenter;
-import com.zev.wanandroid.mvp.ui.activity.WebActivity;
+import com.zev.wanandroid.mvp.ui.activity.WebExActivity;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterAdapter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpLazyFragment;
+
+import org.simple.eventbus.Subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import timber.log.Timber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
@@ -54,6 +61,8 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
     RecyclerView rvPro;
     @BindView(R.id.pb_loading)
     ProgressBar pbLoading;
+    @BindView(R.id.refresh_layout)
+    SmartRefreshLayout refreshLayout;
 
     ChapterAdapter mAdapter;
 
@@ -175,9 +184,23 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
         mAdapter.disableLoadMoreIfNotFullPage();
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             ChapterBean bean = (ChapterBean) adapter.getData().get(position);
-            ActivityUtils.startActivity(new Intent(getActivity(), WebActivity.class)
-                    .putExtra("url", bean.getLink()));
+            ActivityUtils.startActivity(new Intent(getActivity(), WebExActivity.class)
+                    .putExtra("url", bean.getLink())
+                    .putExtra("id", bean.getId())
+                    .putExtra("collect", bean.isCollect()));
         });
+        mAdapter.setLikeListener((like, pos) -> {
+            ChapterBean bean = mAdapter.getData().get(pos);
+            Timber.d("setLikeListener===" + bean.getTitle() + "===" + bean.isCollect() + "==" + pos);
+            if (like) {
+                mPresenter.addCollect(bean.getId());
+            } else {
+                mPresenter.unCollect(bean.getId());
+            }
+            bean.setCollect(like);
+            mAdapter.refreshNotifyItemChanged(pos);
+        });
+        refreshLayout.setOnRefreshListener(refreshLayout -> mPresenter.getProjectList(page = 1, cid));
         mAdapter.setNewData(allChapter);
         rvPro.setAdapter(mAdapter);
         mPresenter.getProjectList(page, cid);
@@ -186,12 +209,35 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
 
     @Override
     public void getProjectList(ChapterEntity entity) {
+        if (entity.getCurPage() == 1) {
+            allChapter.clear();
+            refreshLayout.finishRefresh();
+        }
         totalCount = entity.getTotal();
         addChapter(entity.getDatas(), false);
-//        mAdapter.notifyDataSetChanged();
         mAdapter.loadMoreComplete();
         if (pbLoading.getVisibility() == View.VISIBLE)
             pbLoading.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void getProjectError(String msg) {
+        refreshLayout.finishRefresh(false);
+    }
+
+    @Override
+    public void addCollectChapter(BaseEntity entity) {
+
+    }
+
+    @Override
+    public void unCollectChapter(BaseEntity entity) {
+
+    }
+
+    @Override
+    public void collectError(String msg) {
+
     }
 
 
@@ -208,11 +254,28 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
                 bean.setShowTag(true);
                 bean.setTag(c.getTags().get(0).name);
             }
+            bean.setCollect(c.isCollect());
+            bean.setId(c.getId());
             bean.setLink(c.getLink());
             bean.setShowNew(c.isFresh());
             bean.setShowTop(isTop);
             bean.setShowDesc(ObjectUtils.isNotEmpty(c.getDesc()));
             allChapter.add(bean);
+        }
+    }
+
+
+    @Subscriber(tag = EventBusTags.UPDATE_COLLECT)
+    public void onChangeZan(EventBusData data) {
+        if (mAdapter != null) {
+            for (int i = 0; i < mAdapter.getData().size(); i++) {
+                ChapterBean bean = mAdapter.getData().get(i);
+                if (data.id == bean.getId()) {
+                    bean.setCollect(data.like);
+                    break;
+                }
+            }
+            mAdapter.notifyDataSetChanged();
         }
     }
 }

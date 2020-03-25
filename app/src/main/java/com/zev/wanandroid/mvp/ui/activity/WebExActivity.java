@@ -13,14 +13,21 @@ import com.blankj.utilcode.util.ObjectUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.app.manager.WebViewManager;
 import com.zev.wanandroid.di.component.DaggerWebExComponent;
 import com.zev.wanandroid.mvp.contract.WebExContract;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.WebExPresenter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpActivity;
+import com.zev.wanandroid.mvp.ui.view.LikeLayout;
+
+import org.simple.eventbus.EventBus;
 
 import butterknife.BindView;
 import mbanje.kurt.fabbutton.FabButton;
+import timber.log.Timber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
@@ -44,10 +51,13 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
     FrameLayout flParent;
     @BindView(R.id.pb_btn)
     FabButton fabButton;
+    @BindView(R.id.like_layout)
+    LikeLayout likeLayout;
 
     private WebViewManager webManager = new WebViewManager();
     private String mUrl;
     private boolean collect;
+    private int mId;
     private GestureDetector gestureScanner;
 
     @Override
@@ -74,13 +84,16 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
             return;
         }
         collect = getIntent().getBooleanExtra("collect", false);
+        mId = getIntent().getIntExtra("id", 0);
         fabButton.showProgress(true);
         setFabColor();
         fabButton.setOnClickListener(v -> finish());
         webManager.setupWebViewWithActivity(mUrl, this, flParent, -1, -1, 30, new WebViewManager.WebCallbackEx() {
             @Override
             public void onProgress(WebView view, int newProgress) {
-                fabButton.setProgress(newProgress);
+                if (!isFinishing()) {
+                    fabButton.setProgress(newProgress);
+                }
             }
 
             @Override
@@ -118,8 +131,10 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
         gestureScanner = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                collect = !collect;
-                setFabColor();
+                likeLayout.addLoveView(e.getRawX(), e.getRawY());
+                if (!collect) {
+                    mPresenter.addCollect(mId);
+                }
                 return true;
             }
         });
@@ -161,6 +176,20 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
     @Override
     public void killMyself() {
         finish();
+    }
+
+    @Override
+    public void addCollectChapter(BaseEntity entity) {
+        collect = true;
+        setFabColor();
+        EventBus.getDefault().post(new EventBusData(true, mId), EventBusTags.UPDATE_COLLECT);
+        Timber.d("addCollectChapter=========success");
+    }
+
+    @Override
+    public void collectError(String msg) {
+        collect = false;
+        Timber.d("addCollectChapter=========error");
     }
 
 

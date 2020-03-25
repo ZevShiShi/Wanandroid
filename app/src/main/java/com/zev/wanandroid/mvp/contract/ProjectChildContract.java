@@ -25,6 +25,14 @@ public interface ProjectChildContract {
     interface View extends IView {
 
         void getProjectList(ChapterEntity entity);
+
+        void getProjectError(String msg);
+
+        void addCollectChapter(BaseEntity entity);
+
+        void unCollectChapter(BaseEntity entity);
+
+        void collectError(String msg);
     }
 
     //Model层定义接口,外部只需关心Model返回的数据,无需关心内部细节,即是否使用缓存
@@ -32,6 +40,9 @@ public interface ProjectChildContract {
 
         Observable<BaseEntity<ChapterEntity>> getProjectList(int page, int cid);
 
+        Observable<BaseEntity> addCollectChapter(int id);
+
+        Observable<BaseEntity> unCollectByChapter(int id);
 
     }
 }

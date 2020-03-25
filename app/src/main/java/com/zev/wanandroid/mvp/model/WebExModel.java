@@ -3,14 +3,16 @@ package com.zev.wanandroid.mvp.model;
 import android.app.Application;
 
 import com.google.gson.Gson;
+import com.jess.arms.di.scope.ActivityScope;
 import com.jess.arms.integration.IRepositoryManager;
 import com.jess.arms.mvp.BaseModel;
-
-import com.jess.arms.di.scope.ActivityScope;
+import com.zev.wanandroid.mvp.contract.WebExContract;
+import com.zev.wanandroid.mvp.model.api.service.HomeService;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 
 import javax.inject.Inject;
 
-import com.zev.wanandroid.mvp.contract.WebExContract;
+import io.reactivex.Observable;
 
 
 /**
@@ -42,5 +44,10 @@ public class WebExModel extends BaseModel implements WebExContract.Model {
         super.onDestroy();
         this.mGson = null;
         this.mApplication = null;
+    }
+
+    @Override
+    public Observable<BaseEntity> addCollectChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).addCollectChapter(id);
     }
 }

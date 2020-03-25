@@ -18,6 +18,8 @@ import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerChapterCollectComponent;
 import com.zev.wanandroid.mvp.contract.ChapterCollectContract;
 import com.zev.wanandroid.mvp.model.entity.Chapter;
@@ -28,6 +30,8 @@ import com.zev.wanandroid.mvp.ui.activity.WebActivity;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterAdapter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpLazyFragment;
+
+import org.simple.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,6 +181,8 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
 
     @Override
     public void unCollectByMy(BaseEntity entity) {
+        EventBus.getDefault().post(new EventBusData(false
+                , allChapter.get(removePos).getOriginId()), EventBusTags.UPDATE_COLLECT);
         allChapter.remove(removePos);
         if (allChapter.size() == 0) {
             mAdapter.notifyDataSetChanged();
@@ -243,6 +249,7 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
             if (ObjectUtils.isNotEmpty(c.getEnvelopePic())) {
                 bean.setImgLink(c.getEnvelopePic());
             }
+            bean.setOriginId(c.getOriginId());
             bean.setCollect(true);
             bean.setId(c.getId());
             bean.setLink(c.getLink());

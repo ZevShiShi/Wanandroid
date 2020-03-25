@@ -51,4 +51,14 @@ public class SetupChildModel extends BaseModel implements SetupChildContract.Mod
     public Observable<BaseEntity<ChapterEntity>> getChapterListByCid(int page, int cid) {
         return mRepositoryManager.obtainRetrofitService(HomeService.class).getChapterListByCid(page, cid);
     }
+
+    @Override
+    public Observable<BaseEntity> addCollectChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).addCollectChapter(id);
+    }
+
+    @Override
+    public Observable<BaseEntity> unCollectByChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).unCollectByChapter(id);
+    }
 }

@@ -2,15 +2,19 @@ package com.zev.wanandroid.mvp.presenter;
 
 import android.app.Application;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.scope.ActivityScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.WebExContract;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 
 import javax.inject.Inject;
 
 import me.jessyan.rxerrorhandler.core.RxErrorHandler;
+import me.jessyan.rxerrorhandler.handler.ErrorHandleSubscriber;
 
 
 /**
@@ -48,5 +52,28 @@ public class WebExPresenter extends BasePresenter<WebExContract.Model, WebExCont
         this.mAppManager = null;
         this.mImageLoader = null;
         this.mApplication = null;
+    }
+
+    public void addCollect(int id) {
+        mModel.addCollectChapter(id)
+                .compose(RxUtils.applySchedulers(mRootView))
+                .subscribe(new ErrorHandleSubscriber<BaseEntity>(mErrorHandler) {
+                    @Override
+                    public void onNext(BaseEntity entity) {
+                        if (entity.getErrorCode() == 0) {
+                            mRootView.addCollectChapter(entity);
+                        } else {
+                            mRootView.collectError(entity.getErrorMsg());
+                            ToastUtils.showShort(entity.getErrorMsg());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        super.onError(t);
+                        mRootView.collectError(t.getCause().getMessage());
+                        ToastUtils.showShort(t.getCause().getMessage());
+                    }
+                });
     }
 }

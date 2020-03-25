@@ -55,9 +55,7 @@ public interface HomeContract {
 
         Observable<BaseArrayEntity<Chapter>> getTopChapter();
 
-
         Observable<BaseEntity> addCollectChapter(int id);
-
 
         Observable<BaseEntity> unCollectByChapter(int id);
     }

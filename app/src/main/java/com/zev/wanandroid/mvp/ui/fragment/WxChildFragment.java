@@ -17,21 +17,28 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerWxChildComponent;
 import com.zev.wanandroid.mvp.contract.WxChildContract;
 import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.WxChildPresenter;
-import com.zev.wanandroid.mvp.ui.activity.WebActivity;
+import com.zev.wanandroid.mvp.ui.activity.WebExActivity;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterAdapter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpLazyFragment;
+
+import org.simple.eventbus.Subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import timber.log.Timber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
@@ -54,6 +61,8 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
     RecyclerView rvWxChapter;
     @BindView(R.id.pb_loading)
     ProgressBar pbLoading;
+    @BindView(R.id.refresh_layout)
+    SmartRefreshLayout refreshLayout;
 
     private int totalCount;
     private int page = 1;
@@ -174,9 +183,23 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
         mAdapter.disableLoadMoreIfNotFullPage();
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             ChapterBean bean = (ChapterBean) adapter.getData().get(position);
-            ActivityUtils.startActivity(new Intent(getActivity(), WebActivity.class)
-                    .putExtra("url", bean.getLink()));
+            ActivityUtils.startActivity(new Intent(getActivity(), WebExActivity.class)
+                    .putExtra("url", bean.getLink())
+                    .putExtra("id", bean.getId())
+                    .putExtra("collect", bean.isCollect()));
         });
+        mAdapter.setLikeListener((like, pos) -> {
+            ChapterBean bean = mAdapter.getData().get(pos);// 去掉header
+            Timber.d("setLikeListener===" + bean.getTitle() + "===" + bean.isCollect() + "==" + pos);
+            if (like) {
+                mPresenter.addCollect(bean.getId());
+            } else {
+                mPresenter.unCollect(bean.getId());
+            }
+            bean.setCollect(like);
+            mAdapter.refreshNotifyItemChanged(pos);
+        });
+        refreshLayout.setOnRefreshListener(refreshLayout -> mPresenter.getChapterByWx(chapterId, page = 1));
         mAdapter.setNewData(allChapter);
         rvWxChapter.setAdapter(mAdapter);
         mPresenter.getChapterByWx(chapterId, page);
@@ -196,6 +219,8 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
                 bean.setShowTag(true);
                 bean.setTag(c.getTags().get(0).name);
             }
+            bean.setCollect(c.isCollect());
+            bean.setId(c.getId());
             bean.setLink(c.getLink());
             bean.setShowNew(c.isFresh());
             bean.setShowTop(isTop);
@@ -207,11 +232,50 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
 
     @Override
     public void getChapterListByWx(ChapterEntity entity) {
+        if (entity.getCurPage() == 1) {
+            allChapter.clear();
+            refreshLayout.finishRefresh();
+        }
         totalCount = entity.getTotal();
         addChapter(entity.getDatas(), false);
 //        mAdapter.notifyDataSetChanged();
         mAdapter.loadMoreComplete();
         if (pbLoading.getVisibility() == View.VISIBLE)
             pbLoading.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void getChapterWxError(String msg) {
+        refreshLayout.finishRefresh(false);
+    }
+
+    @Override
+    public void addCollectChapter(BaseEntity entity) {
+
+    }
+
+    @Override
+    public void unCollectChapter(BaseEntity entity) {
+
+    }
+
+    @Override
+    public void collectError(String msg) {
+
+    }
+
+
+    @Subscriber(tag = EventBusTags.UPDATE_COLLECT)
+    public void onChangeZan(EventBusData data) {
+        if (mAdapter != null) {
+            for (int i = 0; i < mAdapter.getData().size(); i++) {
+                ChapterBean bean = mAdapter.getData().get(i);
+                if (data.id == bean.getId()) {
+                    bean.setCollect(data.like);
+                    break;
+                }
+            }
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

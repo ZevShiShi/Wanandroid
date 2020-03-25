@@ -26,6 +26,7 @@ public class Chapter {
     private String shareUser;
     private String title;
     private int userId;
+    private int originId;
     private int visible;
     private int zan;
     private long publishTime;
@@ -64,6 +65,10 @@ public class Chapter {
 
     public boolean isCollect() {
         return collect;
+    }
+
+    public void setCollect(boolean collect) {
+        this.collect = collect;
     }
 
     public int getCourseId() {
@@ -132,6 +137,11 @@ public class Chapter {
 
     public int getSelfVisible() {
         return selfVisible;
+    }
+
+
+    public int getOriginId() {
+        return originId;
     }
 
     public boolean isFresh() {

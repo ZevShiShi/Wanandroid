@@ -16,4 +16,5 @@ public interface EventBusTags {
 
     String UPDATE_COLLECT = "update_collect";
 
+
 }

@@ -52,4 +52,14 @@ public class WxChildModel extends BaseModel implements WxChildContract.Model {
         return mRepositoryManager.obtainRetrofitService(HomeService.class).getChapterListByWx(chapterId, page);
     }
 
+    @Override
+    public Observable<BaseEntity> addCollectChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).addCollectChapter(id);
+    }
+
+    @Override
+    public Observable<BaseEntity> unCollectByChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).unCollectByChapter(id);
+    }
+
 }

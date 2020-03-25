@@ -16,13 +16,18 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerNavigationComponent;
 import com.zev.wanandroid.mvp.contract.NavigationContract;
+import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.NavigationEntity;
 import com.zev.wanandroid.mvp.presenter.NavigationPresenter;
-import com.zev.wanandroid.mvp.ui.activity.WebActivity;
+import com.zev.wanandroid.mvp.ui.activity.WebExActivity;
 import com.zev.wanandroid.mvp.ui.adapter.NavigationAdapter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpLazyFragment;
+
+import org.simple.eventbus.Subscriber;
 
 import java.util.List;
 
@@ -76,9 +81,11 @@ public class NavigationFragment extends BaseMvpLazyFragment<NavigationPresenter>
         mAdapter = new NavigationAdapter(R.layout.navigation_item);
         mAdapter.bindToRecyclerView(rvNavi);
         mAdapter.setSelectCallback((groupPos, pos) -> {
-            String url = mAdapter.getData().get(groupPos).getArticles().get(pos).getLink();
-            ActivityUtils.startActivity(new Intent(getActivity(), WebActivity.class)
-                    .putExtra("url", url));
+            Chapter chapter = mAdapter.getData().get(groupPos).getArticles().get(pos);
+            ActivityUtils.startActivity(new Intent(getActivity(), WebExActivity.class)
+                    .putExtra("url", chapter.getLink())
+                    .putExtra("id", chapter.getId())
+                    .putExtra("collect", chapter.isCollect()));
         });
         mPresenter.getNavigation();
     }
@@ -159,5 +166,21 @@ public class NavigationFragment extends BaseMvpLazyFragment<NavigationPresenter>
     @Override
     public void getNavigation(List<NavigationEntity> entities) {
         mAdapter.setNewData(entities);
+    }
+
+    @Subscriber(tag = EventBusTags.UPDATE_COLLECT)
+    public void onChangeZan(EventBusData data) {
+        if (mAdapter != null) {
+            for (int i = 0; i < mAdapter.getData().size(); i++) {
+                for (int j = 0; j < mAdapter.getData().get(i).getArticles().size(); j++) {
+                    Chapter c = mAdapter.getData().get(i).getArticles().get(j);
+                    if (data.id == c.getId()) {
+                        c.setCollect(data.like);
+                        break;
+                    }
+                }
+            }
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

@@ -25,11 +25,23 @@ public interface SetupChildContract {
     interface View extends IView {
 
         void getChapterListByCid(ChapterEntity entity);
+
+        void getChapterError(String msg);
+
+        void addCollectChapter(BaseEntity entity);
+
+        void unCollectChapter(BaseEntity entity);
+
+        void collectError(String msg);
     }
 
     //Model层定义接口,外部只需关心Model返回的数据,无需关心内部细节,即是否使用缓存
     interface Model extends IModel {
 
         Observable<BaseEntity<ChapterEntity>> getChapterListByCid(int page, int cid);
+
+        Observable<BaseEntity> addCollectChapter(int id);
+
+        Observable<BaseEntity> unCollectByChapter(int id);
     }
 }

@@ -15,6 +15,7 @@ public class ChapterBean {
     private String link;
     private String imgLink;
     private int id;
+    private int originId;
     private boolean collect;
 
 
@@ -151,6 +152,14 @@ public class ChapterBean {
 
     public void setCollect(boolean collect) {
         this.collect = collect;
+    }
+
+    public int getOriginId() {
+        return originId;
+    }
+
+    public void setOriginId(int originId) {
+        this.originId = originId;
     }
 
     @Override

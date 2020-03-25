@@ -51,4 +51,14 @@ public class ProjectChildModel extends BaseModel implements ProjectChildContract
     public Observable<BaseEntity<ChapterEntity>> getProjectList(int page, int cid) {
         return mRepositoryManager.obtainRetrofitService(HomeService.class).getProjectList(page, cid);
     }
+
+    @Override
+    public Observable<BaseEntity> addCollectChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).addCollectChapter(id);
+    }
+
+    @Override
+    public Observable<BaseEntity> unCollectByChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).unCollectByChapter(id);
+    }
 }

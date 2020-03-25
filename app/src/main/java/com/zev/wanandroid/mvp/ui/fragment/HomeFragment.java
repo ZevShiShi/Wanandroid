@@ -21,11 +21,13 @@ import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
 import com.zev.wanandroid.R;
 import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.app.utils.GlideImageLoader;
 import com.zev.wanandroid.di.component.DaggerHomeComponent;
 import com.zev.wanandroid.mvp.contract.HomeContract;
@@ -67,12 +69,12 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
     @BindView(R.id.rv_chapter)
     RecyclerView rvChapter;
-    private boolean isScroll;
+    @BindView(R.id.refresh_layout)
+    SmartRefreshLayout refreshLayout;
     Banner banner;
-
+    private boolean isScroll;
     private int totalCount;
     private int page;
-    private int zanPos;
     private List<ChapterBean> allChapter = new ArrayList<>();
     private ChapterAdapter mAdapter;
 
@@ -156,7 +158,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
                     .putExtra("url", url)
                     .putExtra("id", id));
         });
-        mAdapter.addHeaderView(banner);
+        mAdapter.setHeaderView(banner);
         mAdapter.setHeader(true);
     }
 
@@ -260,21 +262,19 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         }, rvChapter);
         mAdapter.disableLoadMoreIfNotFullPage();
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
-            zanPos = position;
             ChapterBean bean = mAdapter.getData().get(position);
 //            ActivityUtils.startActivity(new Intent(getActivity(), WebActivity.class)
 //                    .putExtra("url", bean.getLink())
 //                    .putExtra("id", bean.getId())
 //                    .putExtra("collect", bean.isCollect()));
-
             ActivityUtils.startActivity(new Intent(getActivity(), WebExActivity.class)
                     .putExtra("url", bean.getLink())
+                    .putExtra("id", bean.getId())
                     .putExtra("collect", bean.isCollect()));
 
         });
         mAdapter.setLikeListener((like, pos) -> {
-            zanPos = pos;
-            ChapterBean bean = mAdapter.getData().get(pos);// 去掉header
+            ChapterBean bean = mAdapter.getData().get(pos);
             Timber.d("setLikeListener===" + bean.getTitle() + "===" + bean.isCollect() + "==" + pos);
             if (like) {
                 mPresenter.addCollect(bean.getId());
@@ -283,6 +283,10 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
             }
             bean.setCollect(like);
             mAdapter.refreshNotifyItemChanged(pos);
+        });
+        refreshLayout.setOnRefreshListener(refreshLayout -> {
+            mPresenter.getBanner();
+            mPresenter.getChapterTop();
         });
         mAdapter.setNewData(allChapter);
         rvChapter.setAdapter(mAdapter);
@@ -305,16 +309,19 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         totalCount = entity.getTotal();
         addChapter(entity.getDatas(), false);
         mAdapter.loadMoreComplete();
+        refreshLayout.finishRefresh();
     }
 
     @Override
     public void getChapterError(String msg) {
         ToastUtils.showShort(msg);
         mAdapter.loadMoreFail();
+        refreshLayout.finishRefresh(false);
     }
 
     @Override
     public void getChapterTop(List<Chapter> chapters) {
+        allChapter.clear();
         addChapter(chapters, true);
         mPresenter.getChapterList(page);
     }
@@ -359,10 +366,15 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
 
     @Subscriber(tag = EventBusTags.UPDATE_COLLECT)
-    public void onChangeZan(boolean like) {
+    public void onChangeZan(EventBusData data) {
         if (mAdapter != null) {
-            ChapterBean bean = mAdapter.getData().get(zanPos);
-            bean.setCollect(like);
+            for (int i = 0; i < mAdapter.getData().size(); i++) {
+                ChapterBean bean = mAdapter.getData().get(i);
+                if (data.id == bean.getId()) {
+                    bean.setCollect(data.like);
+                    break;
+                }
+            }
             mAdapter.notifyDataSetChanged();
         }
     }

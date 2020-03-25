@@ -13,6 +13,7 @@ import com.zev.wanandroid.mvp.model.entity.LinkEntity;
 import com.zev.wanandroid.mvp.model.entity.base.BaseArrayEntity;
 import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.inject.Inject;
@@ -68,6 +69,8 @@ public class LinkCollectPresenter extends BasePresenter<LinkCollectContract.Mode
                         if (entities.isSuccess()) {
                             Collections.reverse(entities.getData()); // 倒序list
                             mRootView.getLink(entities.getData());
+                        } else {
+                            mRootView.getLink(new ArrayList<>());
                         }
                     }
 
