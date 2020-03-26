@@ -53,4 +53,11 @@
         <item name="android:windowEnterAnimation">@anim/pop_bottom_in</item>
         <item name="android:windowExitAnimation">@anim/pop_bottom_out</item>
     </style>
+
+    <style name="fullScreen" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>//无标题
+        <item name="android:windowActionBar">false</item>//无ActionBar
+        <item name="android:windowFullscreen">true</item>//全屏即无通知栏
+        <item name="android:windowContentOverlay">@null</item>//是否有遮盖
+    </style>
 </resources>

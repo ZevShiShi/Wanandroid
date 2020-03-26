@@ -1,8 +1,9 @@
 package com.zev.wanandroid.mvp.model.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class NavigationEntity {
+public class NavigationEntity implements Serializable {
 
     private int cid;
     private String name;

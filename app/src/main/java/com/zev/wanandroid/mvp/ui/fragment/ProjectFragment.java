@@ -11,10 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.blankj.utilcode.util.ObjectUtils;
 import com.flyco.tablayout.SlidingTabLayout;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.di.component.DaggerProjectComponent;
 import com.zev.wanandroid.mvp.contract.ProjectContract;
 import com.zev.wanandroid.mvp.model.entity.SetupEntity;
@@ -147,11 +149,20 @@ public class ProjectFragment extends BaseMvpLazyFragment<ProjectPresenter> imple
 
     @Override
     protected void lazyLoadData() {
-        mPresenter.getProjectTab();
+        List<SetupEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("pro_tab");
+        if (ObjectUtils.isEmpty(entities)) {
+            mPresenter.getProjectTab();
+        } else {
+            addProTab(entities);
+        }
     }
 
     @Override
     public void getProjectTab(List<SetupEntity> entities) {
+        addProTab(entities);
+    }
+
+    private void addProTab(List<SetupEntity> entities) {
         mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
         String[] titles = new String[entities.size()];
         for (int i = 0; i < entities.size(); i++) {

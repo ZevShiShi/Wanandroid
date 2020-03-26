@@ -2,11 +2,11 @@ package com.zev.wanandroid.mvp.presenter;
 
 import android.app.Application;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.ProjectChildContract;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
@@ -63,6 +63,9 @@ public class ProjectChildPresenter extends BasePresenter<ProjectChildContract.Mo
                     @Override
                     public void onNext(BaseEntity<ChapterEntity> entity) {
                         if (entity.isSuccess()) {
+                            if (entity.getData().getCurPage() == 1) {
+                                AppLifecyclesImpl.getDiskLruCacheUtil().put("pro_chapter" + cid, entity.getData());
+                            }
                             mRootView.getProjectList(entity.getData());
                         } else {
                             mRootView.getProjectError(entity.getErrorMsg());
@@ -73,7 +76,6 @@ public class ProjectChildPresenter extends BasePresenter<ProjectChildContract.Mo
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.getProjectError(t.getCause().getMessage());
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }
@@ -89,7 +91,6 @@ public class ProjectChildPresenter extends BasePresenter<ProjectChildContract.Mo
                             mRootView.addCollectChapter(entity);
                         } else {
                             mRootView.collectError(entity.getErrorMsg());
-                            ToastUtils.showShort(entity.getErrorMsg());
                         }
                     }
 
@@ -97,7 +98,6 @@ public class ProjectChildPresenter extends BasePresenter<ProjectChildContract.Mo
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.collectError(t.getCause().getMessage());
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }
@@ -113,7 +113,6 @@ public class ProjectChildPresenter extends BasePresenter<ProjectChildContract.Mo
                             mRootView.unCollectChapter(entity);
                         } else {
                             mRootView.collectError(entity.getErrorMsg());
-                            ToastUtils.showShort(entity.getErrorMsg());
                         }
                     }
 
@@ -121,7 +120,6 @@ public class ProjectChildPresenter extends BasePresenter<ProjectChildContract.Mo
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.collectError(t.getCause().getMessage());
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }

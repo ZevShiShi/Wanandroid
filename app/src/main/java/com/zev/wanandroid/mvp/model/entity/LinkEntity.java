@@ -1,6 +1,8 @@
 package com.zev.wanandroid.mvp.model.entity;
 
-public class LinkEntity {
+import java.io.Serializable;
+
+public class LinkEntity implements Serializable {
 
     private int id;
     private String icon;

@@ -11,10 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.blankj.utilcode.util.ObjectUtils;
 import com.flyco.tablayout.SlidingTabLayout;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.di.component.DaggerOfficialAccountComponent;
 import com.zev.wanandroid.mvp.contract.OfficialAccountContract;
 import com.zev.wanandroid.mvp.model.entity.SetupEntity;
@@ -148,11 +150,20 @@ public class OfficialAccountFragment extends BaseMvpLazyFragment<OfficialAccount
 
     @Override
     protected void lazyLoadData() {
-        mPresenter.getWxTab();
+        List<SetupEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("wx_tab");
+        if (ObjectUtils.isEmpty(entities)) {
+            mPresenter.getWxTab();
+        } else {
+            addWxTab(entities);
+        }
     }
 
     @Override
     public void getWxTab(List<SetupEntity> entities) {
+        addWxTab(entities);
+    }
+
+    private void addWxTab(List<SetupEntity> entities) {
         List<String> titleList = new ArrayList<>();
         mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
         for (SetupEntity e : entities) {

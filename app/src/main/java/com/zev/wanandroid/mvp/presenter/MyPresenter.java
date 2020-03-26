@@ -6,6 +6,7 @@ import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.MyContract;
 import com.zev.wanandroid.mvp.model.entity.UserinfoEntity;
@@ -62,6 +63,7 @@ public class MyPresenter extends BasePresenter<MyContract.Model, MyContract.View
                     @Override
                     public void onNext(BaseEntity<UserinfoEntity> entity) {
                         if (entity.isSuccess()) {
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("userinfo", entity.getData());
                             mRootView.getUserInfo(entity.getData());
                         } else {
                             mRootView.getUserInfoError(entity.getErrorMsg());

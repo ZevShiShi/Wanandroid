@@ -93,6 +93,8 @@ dependencies {
     implementation rootProject.ext.dependencies["SmartRefreshLayout"]
     implementation rootProject.ext.dependencies["swipelayout"]
     implementation rootProject.ext.dependencies["fabbutton"]
+    implementation rootProject.ext.dependencies["ParticleView"]
+    implementation rootProject.ext.dependencies["disklrucache"]
 
     //test
     debugImplementation rootProject.ext.dependencies["canary-debug"]

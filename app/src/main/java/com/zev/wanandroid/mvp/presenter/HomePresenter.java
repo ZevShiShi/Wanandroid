@@ -2,11 +2,11 @@ package com.zev.wanandroid.mvp.presenter;
 
 import android.app.Application;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.HomeContract;
 import com.zev.wanandroid.mvp.model.entity.BannerEntity;
@@ -66,6 +66,7 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                     @Override
                     public void onNext(BaseArrayEntity<BannerEntity> arrayEntity) {
                         if (arrayEntity.isSuccess()) {
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("banner", arrayEntity.getData());
                             mRootView.showBanner(arrayEntity.getData());
                         } else {
                             mRootView.bannerFail(arrayEntity.getErrorMsg());
@@ -88,6 +89,9 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                     @Override
                     public void onNext(BaseEntity<ChapterEntity> entity) {
                         if (entity.isSuccess()) {
+                            if (entity.getData().getCurPage() == 1) {
+                                AppLifecyclesImpl.getDiskLruCacheUtil().put("chapterList", entity.getData().getDatas());
+                            }
                             mRootView.getChapterList(entity.getData());
                         } else {
                             mRootView.getChapterError(entity.getErrorMsg());
@@ -110,6 +114,7 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                     @Override
                     public void onNext(BaseArrayEntity<Chapter> entity) {
                         if (entity.isSuccess()) {
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("chapterTop", entity.getData());
                             mRootView.getChapterTop(entity.getData());
                         } else {
                             mRootView.getChapterError(entity.getErrorMsg());
@@ -135,7 +140,6 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                             mRootView.addCollectChapter(entity);
                         } else {
                             mRootView.collectError(entity.getErrorMsg());
-                            ToastUtils.showShort(entity.getErrorMsg());
                         }
                     }
 
@@ -143,7 +147,6 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.collectError(t.getCause().getMessage());
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }
@@ -159,7 +162,6 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                             mRootView.unCollectChapter(entity);
                         } else {
                             mRootView.collectError(entity.getErrorMsg());
-                            ToastUtils.showShort(entity.getErrorMsg());
                         }
                     }
 
@@ -167,7 +169,6 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.collectError(t.getCause().getMessage());
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }

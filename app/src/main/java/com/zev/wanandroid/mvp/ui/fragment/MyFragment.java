@@ -185,7 +185,12 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
 
     @Override
     protected void lazyLoadData() {
-        mPresenter.getUserInfo();
+        UserinfoEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("userinfo");
+        if (ObjectUtils.isEmpty(entity)) {
+            mPresenter.getUserInfo();
+        } else {
+            showUser(entity);
+        }
         Collections.addAll(myBeans, new MyBean(R.drawable.myscore, "我的积分")
                 , new MyBean(R.drawable.share, "我的分享")
                 , new MyBean(R.drawable.collect, "我的收藏")
@@ -281,6 +286,10 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
 
     @Override
     public void getUserInfo(UserinfoEntity entity) {
+        showUser(entity);
+    }
+
+    private void showUser(UserinfoEntity entity) {
         tvId.setText(String.valueOf(entity.getUserId()));
         tvLevel.setText("等级：" + entity.getLevel() + "排名：" + entity.getRank());
         tvUsername.setText(entity.getUsername());

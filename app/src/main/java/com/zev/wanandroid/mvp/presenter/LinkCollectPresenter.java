@@ -2,11 +2,11 @@ package com.zev.wanandroid.mvp.presenter;
 
 import android.app.Application;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.LinkCollectContract;
 import com.zev.wanandroid.mvp.model.entity.LinkEntity;
@@ -68,6 +68,7 @@ public class LinkCollectPresenter extends BasePresenter<LinkCollectContract.Mode
                     public void onNext(BaseArrayEntity<LinkEntity> entities) {
                         if (entities.isSuccess()) {
                             Collections.reverse(entities.getData()); // 倒序list
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("collect_link", entities.getData());
                             mRootView.getLink(entities.getData());
                         } else {
                             mRootView.getLink(new ArrayList<>());
@@ -78,7 +79,6 @@ public class LinkCollectPresenter extends BasePresenter<LinkCollectContract.Mode
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.getLinkError(t.getCause().getMessage());
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }
@@ -92,15 +92,12 @@ public class LinkCollectPresenter extends BasePresenter<LinkCollectContract.Mode
                     public void onNext(BaseEntity entity) {
                         if (entity.getErrorCode() == 0) {
                             mRootView.deleteMyLink();
-                        } else {
-                            ToastUtils.showShort(entity.getErrorMsg());
                         }
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         super.onError(t);
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }
@@ -114,15 +111,12 @@ public class LinkCollectPresenter extends BasePresenter<LinkCollectContract.Mode
                     public void onNext(BaseEntity entity) {
                         if (entity.getErrorCode() == 0) {
                             mRootView.updateMyLink();
-                        } else {
-                            ToastUtils.showShort(entity.getErrorMsg());
                         }
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         super.onError(t);
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }

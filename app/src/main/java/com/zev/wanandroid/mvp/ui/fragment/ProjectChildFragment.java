@@ -19,6 +19,7 @@ import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerProjectChildComponent;
@@ -203,12 +204,21 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
         refreshLayout.setOnRefreshListener(refreshLayout -> mPresenter.getProjectList(page = 1, cid));
         mAdapter.setNewData(allChapter);
         rvPro.setAdapter(mAdapter);
-        mPresenter.getProjectList(page, cid);
+        ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("pro_chapter" + cid);
+        if (ObjectUtils.isEmpty(entity)) {
+            mPresenter.getProjectList(page, cid);
+        } else {
+            addProChapter(entity);
+        }
     }
 
 
     @Override
     public void getProjectList(ChapterEntity entity) {
+        addProChapter(entity);
+    }
+
+    private void addProChapter(ChapterEntity entity) {
         if (entity.getCurPage() == 1) {
             allChapter.clear();
             refreshLayout.finishRefresh();
@@ -222,7 +232,10 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
 
     @Override
     public void getProjectError(String msg) {
+        mAdapter.loadMoreFail();
         refreshLayout.finishRefresh(false);
+        if (pbLoading.getVisibility() == View.VISIBLE)
+            pbLoading.setVisibility(View.GONE);
     }
 
     @Override

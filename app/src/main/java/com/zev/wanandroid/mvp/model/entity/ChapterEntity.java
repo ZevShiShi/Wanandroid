@@ -1,8 +1,9 @@
 package com.zev.wanandroid.mvp.model.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ChapterEntity {
+public class ChapterEntity implements Serializable {
 
     private int curPage;
     private List<Chapter> datas;

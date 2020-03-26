@@ -7,6 +7,7 @@ import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.WxChildContract;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
@@ -63,6 +64,9 @@ public class WxChildPresenter extends BasePresenter<WxChildContract.Model, WxChi
                     @Override
                     public void onNext(BaseEntity<ChapterEntity> entity) {
                         if (entity.isSuccess()) {
+                            if (entity.getData().getCurPage() == 1) {
+                                AppLifecyclesImpl.getDiskLruCacheUtil().put("wx_chapter" + id, entity.getData());
+                            }
                             mRootView.getChapterListByWx(entity.getData());
                         } else {
                             mRootView.getChapterWxError(entity.getErrorMsg());
@@ -73,7 +77,6 @@ public class WxChildPresenter extends BasePresenter<WxChildContract.Model, WxChi
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.getChapterWxError(t.getCause().getMessage());
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
     }

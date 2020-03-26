@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:pv="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <me.wangyuwei.particleview.ParticleView
+        android:id="@+id/particleView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tool_bar_color"
+        pv:pv_background_color="@color/tool_bar_color"
+        pv:pv_host_text="Wan"
+        pv:pv_host_text_anim_time="500"
+        pv:pv_host_text_size="40sp"
+        pv:pv_particle_text="Android"
+        pv:pv_particle_text_size="40sp"
+        pv:pv_spread_anim_time="500"
+        pv:pv_text_anim_time="500"
+        pv:pv_text_color="@color/white" />
+</LinearLayout>

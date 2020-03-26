@@ -1,6 +1,8 @@
 package com.zev.wanandroid.mvp.model.entity;
 
-public class UserinfoEntity {
+import java.io.Serializable;
+
+public class UserinfoEntity implements Serializable {
 
     private int coinCount;
     private int level;

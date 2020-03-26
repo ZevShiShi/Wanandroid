@@ -19,6 +19,7 @@ import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerWxChildComponent;
@@ -202,7 +203,14 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
         refreshLayout.setOnRefreshListener(refreshLayout -> mPresenter.getChapterByWx(chapterId, page = 1));
         mAdapter.setNewData(allChapter);
         rvWxChapter.setAdapter(mAdapter);
-        mPresenter.getChapterByWx(chapterId, page);
+
+        ChapterEntity chapters = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("wx_chapter" + chapterId);
+        if (ObjectUtils.isEmpty(chapters)) {
+            mPresenter.getChapterByWx(chapterId, page);
+        } else {
+            addChapterByWx(chapters);
+        }
+
     }
 
 
@@ -232,13 +240,16 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
 
     @Override
     public void getChapterListByWx(ChapterEntity entity) {
+        addChapterByWx(entity);
+    }
+
+    private void addChapterByWx(ChapterEntity entity) {
         if (entity.getCurPage() == 1) {
             allChapter.clear();
             refreshLayout.finishRefresh();
         }
         totalCount = entity.getTotal();
         addChapter(entity.getDatas(), false);
-//        mAdapter.notifyDataSetChanged();
         mAdapter.loadMoreComplete();
         if (pbLoading.getVisibility() == View.VISIBLE)
             pbLoading.setVisibility(View.GONE);
@@ -246,7 +257,10 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
 
     @Override
     public void getChapterWxError(String msg) {
+        mAdapter.loadMoreFail();
         refreshLayout.finishRefresh(false);
+        if (pbLoading.getVisibility() == View.VISIBLE)
+            pbLoading.setVisibility(View.GONE);
     }
 
     @Override

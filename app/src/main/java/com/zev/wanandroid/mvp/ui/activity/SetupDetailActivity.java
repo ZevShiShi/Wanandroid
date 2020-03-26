@@ -70,7 +70,7 @@ public class SetupDetailActivity extends BaseMvpActivity<SetupDetailPresenter> i
 
     @Override
     public void initData(@Nullable Bundle savedInstanceState) {
-        entity = getIntent().getParcelableExtra("setup_data");
+        entity = (SetupEntity) getIntent().getSerializableExtra("setup_data");
         if (entity == null) {
             finish();
             return;

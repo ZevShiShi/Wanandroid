@@ -7,6 +7,7 @@ import com.jess.arms.di.scope.ActivityScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.NavigationContract;
 import com.zev.wanandroid.mvp.model.entity.NavigationEntity;
@@ -63,6 +64,7 @@ public class NavigationPresenter extends BasePresenter<NavigationContract.Model,
                     @Override
                     public void onNext(BaseArrayEntity<NavigationEntity> entity) {
                         if (entity.isSuccess()) {
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("navigation_label", entity.getData());
                             mRootView.getNavigation(entity.getData());
                         }
                     }

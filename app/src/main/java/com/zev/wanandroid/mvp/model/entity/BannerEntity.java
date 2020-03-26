@@ -1,6 +1,8 @@
 package com.zev.wanandroid.mvp.model.entity;
 
-public class BannerEntity {
+import java.io.Serializable;
+
+public class BannerEntity implements Serializable {
 
     private String desc;
     private int id;
@@ -57,8 +59,6 @@ public class BannerEntity {
                 ", url='" + url + '\'' +
                 '}';
     }
-
-
 
 
 }

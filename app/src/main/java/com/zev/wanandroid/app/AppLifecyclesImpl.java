@@ -11,6 +11,7 @@ import com.jess.arms.utils.ArmsUtils;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 import com.zev.wanandroid.BuildConfig;
+import com.zev.wanandroid.app.utils.DiskLruCacheUtil;
 
 import butterknife.ButterKnife;
 import timber.log.Timber;
@@ -30,6 +31,8 @@ public class AppLifecyclesImpl implements AppLifecycles {
 
     public static boolean isLogin = false;
 
+    private static DiskLruCacheUtil diskLruCacheUtil;
+
     @Override
     public void attachBaseContext(@NonNull Context base) {
         MultiDex.install(base);  //这里比 onCreate 先执行,常用于 MultiDex 初始化,插件化框架的初始化
@@ -40,9 +43,14 @@ public class AppLifecyclesImpl implements AppLifecycles {
         return app;
     }
 
+    public static DiskLruCacheUtil getDiskLruCacheUtil() {
+        return diskLruCacheUtil;
+    }
+
     @Override
     public void onCreate(@NonNull Application application) {
         app = application;
+        diskLruCacheUtil = new DiskLruCacheUtil(getInstant(), "DISK_LRU_CACHE");
         if (LeakCanary.isInAnalyzerProcess(application)) {
             // This process is dedicated to LeakCanary for heap analysis.
             // You should not init your app in this process.

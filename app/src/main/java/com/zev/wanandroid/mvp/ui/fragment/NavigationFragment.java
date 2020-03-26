@@ -13,9 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.ObjectUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerNavigationComponent;
@@ -87,7 +89,12 @@ public class NavigationFragment extends BaseMvpLazyFragment<NavigationPresenter>
                     .putExtra("id", chapter.getId())
                     .putExtra("collect", chapter.isCollect()));
         });
-        mPresenter.getNavigation();
+        List<NavigationEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("navigation_label");
+        if (ObjectUtils.isEmpty(entities)) {
+            mPresenter.getNavigation();
+        } else {
+            mAdapter.setNewData(entities);
+        }
     }
 
     /**

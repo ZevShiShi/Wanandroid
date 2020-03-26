@@ -13,9 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.ObjectUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.di.component.DaggerSetupComponent;
 import com.zev.wanandroid.mvp.contract.SetupContract;
 import com.zev.wanandroid.mvp.model.entity.SetupEntity;
@@ -81,7 +83,13 @@ public class SetupFragment extends BaseMvpFragment<SetupPresenter> implements Se
                     .putExtra("setup_data", entity));
 
         });
-        mPresenter.getSetup();
+
+        List<SetupEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("setup_label");
+        if (ObjectUtils.isEmpty(entities)) {
+            mPresenter.getSetup();
+        } else {
+            mAdapter.setNewData(entities);
+        }
     }
 
     /**

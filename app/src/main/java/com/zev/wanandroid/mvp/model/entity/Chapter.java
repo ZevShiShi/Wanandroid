@@ -2,9 +2,10 @@ package com.zev.wanandroid.mvp.model.entity;
 
 import com.blankj.utilcode.util.ObjectUtils;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Chapter {
+public class Chapter implements Serializable {
     private boolean canEdit;
     private int chapterId;
     private int id;
@@ -189,7 +190,7 @@ public class Chapter {
                 '}';
     }
 
-    public class Tags {
+    public class Tags implements Serializable {
         public String name;
         public String url;
     }

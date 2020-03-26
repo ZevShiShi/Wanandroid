@@ -26,6 +26,7 @@ import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.app.utils.GlideImageLoader;
@@ -290,8 +291,22 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         });
         mAdapter.setNewData(allChapter);
         rvChapter.setAdapter(mAdapter);
-        mPresenter.getBanner();
-        mPresenter.getChapterTop();
+
+        List<BannerEntity> bannerEntityList = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("banner");
+        if (ObjectUtils.isEmpty(bannerEntityList)) {
+            mPresenter.getBanner();
+        } else {
+            setupBanner(bannerEntityList);
+        }
+        List<Chapter> chapterTop = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("chapterTop");
+        Timber.e("chapterTop====" + chapterTop);
+        if (ObjectUtils.isEmpty(chapterTop)) {
+            mPresenter.getChapterTop();
+        } else {
+            addChapterTop(chapterTop);
+            List<Chapter> chapterList = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("chapterList");
+            addChapterList(chapterList);
+        }
     }
 
     @Override
@@ -301,29 +316,38 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
     @Override
     public void bannerFail(String msg) {
-        ToastUtils.showShort(msg);
+//        ToastUtils.showShort(msg);
     }
 
     @Override
     public void getChapterList(ChapterEntity entity) {
         totalCount = entity.getTotal();
-        addChapter(entity.getDatas(), false);
+        addChapterList(entity.getDatas());
+    }
+
+    private void addChapterList(List<Chapter> chapters) {
+        addChapter(chapters, false);
         mAdapter.loadMoreComplete();
         refreshLayout.finishRefresh();
     }
 
     @Override
     public void getChapterError(String msg) {
-        ToastUtils.showShort(msg);
+//        ToastUtils.showShort(msg);
         mAdapter.loadMoreFail();
         refreshLayout.finishRefresh(false);
     }
 
     @Override
     public void getChapterTop(List<Chapter> chapters) {
+        addChapterTop(chapters);
+        mPresenter.getChapterList(page);
+    }
+
+    private void addChapterTop(List<Chapter> chapters) {
         allChapter.clear();
         addChapter(chapters, true);
-        mPresenter.getChapterList(page);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

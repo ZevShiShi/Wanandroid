@@ -2,11 +2,11 @@ package com.zev.wanandroid.mvp.presenter;
 
 import android.app.Application;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.ChapterCollectContract;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
@@ -63,6 +63,9 @@ public class ChapterCollectPresenter extends BasePresenter<ChapterCollectContrac
                     @Override
                     public void onNext(BaseEntity<ChapterEntity> entity) {
                         if (entity.isSuccess()) {
+                            if (entity.getData().getCurPage() == 1) {
+                                AppLifecyclesImpl.getDiskLruCacheUtil().put("collect_chapter", entity.getData());
+                            }
                             mRootView.getMyCollect(entity.getData());
                         } else {
                             mRootView.getMyCollectError(entity.getErrorMsg());
@@ -72,7 +75,6 @@ public class ChapterCollectPresenter extends BasePresenter<ChapterCollectContrac
                     @Override
                     public void onError(Throwable t) {
                         super.onError(t);
-                        ToastUtils.showShort(t.getCause().getMessage());
                         mRootView.getMyCollectError(t.getCause().getMessage());
                     }
                 });
@@ -86,15 +88,12 @@ public class ChapterCollectPresenter extends BasePresenter<ChapterCollectContrac
                     public void onNext(BaseEntity entity) {
                         if (entity.getErrorCode() == 0) {
                             mRootView.unCollectByMy(entity);
-                        } else {
-                            ToastUtils.showShort(entity.getErrorMsg());
                         }
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         super.onError(t);
-                        ToastUtils.showShort(t.getCause().getMessage());
                     }
                 });
 

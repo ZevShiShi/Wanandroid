@@ -7,6 +7,7 @@ import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.ProjectContract;
 import com.zev.wanandroid.mvp.model.entity.SetupEntity;
@@ -63,6 +64,7 @@ public class ProjectPresenter extends BasePresenter<ProjectContract.Model, Proje
                     @Override
                     public void onNext(BaseArrayEntity<SetupEntity> entity) {
                         if (entity.isSuccess()) {
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("pro_tab", entity.getData());
                             mRootView.getProjectTab(entity.getData());
                         }
                     }

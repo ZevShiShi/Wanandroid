@@ -18,6 +18,7 @@ import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerChapterCollectComponent;
@@ -165,17 +166,19 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
 
     @Override
     public void getMyCollect(ChapterEntity entity) {
+        addCollectChapter(entity);
+    }
+
+    private void addCollectChapter(ChapterEntity entity) {
         total = entity.getTotal();
         addChapter(entity.getDatas());
         mAdapter.loadMoreComplete();
-        if (isRefresh) {
-            refreshLayout.finishRefresh();//传入false表示刷新失败
-            isRefresh = false;
-        }
+        refreshLayout.finishRefresh();
     }
 
     @Override
     public void getMyCollectError(String error) {
+        mAdapter.loadMoreFail();
         refreshLayout.finishRefresh(false);
     }
 
@@ -229,7 +232,13 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
                 mPresenter.unCollect(bean.getId());
             }
         });
-        mPresenter.getMyCollect(page);
+
+        ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("collect_chapter");
+        if (ObjectUtils.isEmpty(entity)) {
+            mPresenter.getMyCollect(page);
+        } else {
+            addCollectChapter(entity);
+        }
     }
 
 

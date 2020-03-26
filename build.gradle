@@ -9,7 +9,7 @@ buildscript {
 //        maven { url 'https://dl.bintray.com/umsdk/release' }
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
-
+        maven { url 'https://dl.bintray.com/wangyuwei/maven' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
@@ -28,7 +28,7 @@ allprojects {
 //        maven { url 'https://dl.bintray.com/umsdk/release' }
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
-
+        maven { url 'https://dl.bintray.com/wangyuwei/maven' }
 
     }
 }

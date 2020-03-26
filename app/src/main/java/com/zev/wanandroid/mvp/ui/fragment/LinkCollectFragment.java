@@ -17,6 +17,7 @@ import android.widget.EditText;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
+import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -26,6 +27,7 @@ import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.ClipboardUtils;
 import com.zev.wanandroid.di.component.DaggerLinkCollectComponent;
 import com.zev.wanandroid.mvp.contract.LinkCollectContract;
@@ -221,7 +223,12 @@ public class LinkCollectFragment extends BaseMvpLazyFragment<LinkCollectPresente
             ((SwipeLayout) adapter.getViewByPosition(position, R.id.swipe_layout)).close();
         });
 
-        mPresenter.getMyLink();
+        List<LinkEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("collect_link");
+        if (ObjectUtils.isEmpty(entities)) {
+            mPresenter.getMyLink();
+        } else {
+            mAdapter.setNewData(entities);
+        }
     }
 
     private void openEditUrl(LinkEntity entity) {

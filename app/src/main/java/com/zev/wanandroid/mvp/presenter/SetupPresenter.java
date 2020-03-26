@@ -6,6 +6,7 @@ import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.SetupContract;
 import com.zev.wanandroid.mvp.model.entity.SetupEntity;
@@ -62,6 +63,7 @@ public class SetupPresenter extends BasePresenter<SetupContract.Model, SetupCont
                     @Override
                     public void onNext(BaseArrayEntity<SetupEntity> entity) {
                         if (entity.isSuccess()) {
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("setup_label", entity.getData());
                             mRootView.getSetup(entity.getData());
                         }
                     }

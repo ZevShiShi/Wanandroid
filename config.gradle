@@ -71,6 +71,7 @@ ext {
             "SmartRefreshLayout"       : "com.scwang.smartrefresh:SmartRefreshLayout:1.1.2",
             "swipelayout"              : "com.daimajia.swipelayout:library:1.2.0@aar",
             "fabbutton"                : "mbanje.kurt:fabbutton:1.2.4@aar",
+            "ParticleView"             : "me.wangyuwei:ParticleView:1.0.4",
 
             //rx1
             "rxandroid"                : "io.reactivex:rxandroid:1.2.1",
@@ -112,6 +113,7 @@ ext {
             "lifecyclemodel"           : "me.jessyan:lifecyclemodel:1.0.1",
             "greendao"                 : "org.greenrobot:greendao:3.2.2",
             "utilcode"                 : "com.blankj:utilcode:1.22.10",
+            "disklrucache"                 : "com.jakewharton:disklrucache:2.0.2",
 
             //test
             "junit"                    : "junit:junit:4.12",

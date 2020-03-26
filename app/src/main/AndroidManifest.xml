@@ -22,7 +22,16 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="p">
-        <activity android:name=".mvp.ui.activity.WebExActivity"></activity>
+        <activity android:name=".mvp.ui.activity.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".mvp.ui.activity.WebExActivity"
+            android:theme="@style/fullScreen" />
         <activity android:name=".mvp.ui.activity.MyShardActivity" />
         <activity android:name=".mvp.ui.activity.MyCollectActivity" />
         <activity android:name=".mvp.ui.activity.MyScoreActivity" />
@@ -32,11 +41,7 @@
             android:name=".mvp.ui.activity.WebActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".mvp.ui.activity.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".mvp.ui.activity.LoginActivity" /> <!-- <uses-library android:name="com.google.android.things" /> -->
         <!--
