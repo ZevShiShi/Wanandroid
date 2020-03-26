@@ -236,6 +236,7 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
         refreshLayout.finishRefresh(false);
         if (pbLoading.getVisibility() == View.VISIBLE)
             pbLoading.setVisibility(View.GONE);
+        mAdapter.setEmptyView(R.layout.empty_layout, rvPro);
     }
 
     @Override

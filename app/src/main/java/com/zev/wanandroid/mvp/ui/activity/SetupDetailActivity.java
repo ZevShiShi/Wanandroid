@@ -75,6 +75,7 @@ public class SetupDetailActivity extends BaseMvpActivity<SetupDetailPresenter> i
             finish();
             return;
         }
+        int pos = getIntent().getIntExtra("pos", 0);
         tvTitle.setText(entity.getName());
 
         mAdapter = new CustomFragmentAdapter(getSupportFragmentManager());
@@ -87,6 +88,7 @@ public class SetupDetailActivity extends BaseMvpActivity<SetupDetailPresenter> i
         vpSetup.setAdapter(mAdapter);
         String[] names = titles.toArray(new String[titles.size()]);
         tabLayout.setViewPager(vpSetup, names);
+        vpSetup.setCurrentItem(pos);
     }
 
     @Override

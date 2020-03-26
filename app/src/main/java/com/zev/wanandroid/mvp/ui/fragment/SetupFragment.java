@@ -80,7 +80,8 @@ public class SetupFragment extends BaseMvpFragment<SetupPresenter> implements Se
         mAdapter.setSelectCallback((groupPos, pos) -> {
             SetupEntity entity = mAdapter.getData().get(groupPos);
             ActivityUtils.startActivity(new Intent(getActivity(), SetupDetailActivity.class)
-                    .putExtra("setup_data", entity));
+                    .putExtra("setup_data", entity)
+                    .putExtra("pos", pos));
 
         });
 

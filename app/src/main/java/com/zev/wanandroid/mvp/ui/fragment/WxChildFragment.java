@@ -261,6 +261,7 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
         refreshLayout.finishRefresh(false);
         if (pbLoading.getVisibility() == View.VISIBLE)
             pbLoading.setVisibility(View.GONE);
+        mAdapter.setEmptyView(R.layout.empty_layout, rvWxChapter);
     }
 
     @Override

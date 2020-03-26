@@ -19,6 +19,7 @@ import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerSetupChildComponent;
@@ -205,7 +206,13 @@ public class SetupChildFragment extends BaseMvpLazyFragment<SetupChildPresenter>
         refreshLayout.setOnRefreshListener(refreshLayout -> mPresenter.getChapterListByCid(page = 0, cid));
         mAdapter.setNewData(allChapter);
         rvSetupChapter.setAdapter(mAdapter);
-        mPresenter.getChapterListByCid(page, cid);
+
+        ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("setup_child" + cid);
+        if (ObjectUtils.isEmpty(entity)) {
+            mPresenter.getChapterListByCid(page, cid);
+        } else {
+            addChapterList(entity);
+        }
     }
 
 
@@ -235,13 +242,16 @@ public class SetupChildFragment extends BaseMvpLazyFragment<SetupChildPresenter>
 
     @Override
     public void getChapterListByCid(ChapterEntity entity) {
+        addChapterList(entity);
+    }
+
+    private void addChapterList(ChapterEntity entity) {
         if (entity.getCurPage() == 1) {
             allChapter.clear();
             refreshLayout.finishRefresh();
         }
         totalCount = entity.getTotal();
         addChapter(entity.getDatas(), false);
-//        mAdapter.notifyDataSetChanged();
         mAdapter.loadMoreComplete();
         if (pbLoading.getVisibility() == View.VISIBLE)
             pbLoading.setVisibility(View.GONE);
@@ -249,7 +259,11 @@ public class SetupChildFragment extends BaseMvpLazyFragment<SetupChildPresenter>
 
     @Override
     public void getChapterError(String msg) {
+        mAdapter.loadMoreFail();
         refreshLayout.finishRefresh(false);
+        if (pbLoading.getVisibility() == View.VISIBLE)
+            pbLoading.setVisibility(View.GONE);
+        mAdapter.setEmptyView(R.layout.empty_layout, rvSetupChapter);
     }
 
     @Override

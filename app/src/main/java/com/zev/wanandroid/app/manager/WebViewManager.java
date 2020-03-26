@@ -44,27 +44,6 @@ public class WebViewManager {
     private Activity activity;
     private String mUrl;
 
-//    private Handler handler = new Handler(Looper.getMainLooper()) {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            super.handleMessage(msg);
-//            switch (msg.what) {
-//                case 0:
-//                    LogUtils.d(TAG, "handleMessage errorView");
-//                    if (errorView != null) {
-//                        isError = true;
-//                        isFinish = false;
-//                        errorView.setVisibility(View.VISIBLE);
-//                        callback.showWebView();
-//                        // 避免出现默认的错误界面
-//                        if (mAgentWeb != null) {
-//                            mAgentWeb.getUrlLoader().loadUrl("about:blank");
-//                        }
-//                    }
-//                    break;
-//            }
-//        }
-//    };
 
     public WebViewManager() {
     }
@@ -425,14 +404,7 @@ public class WebViewManager {
             callback.hideWebView();
             loadUrl(mUrl);
         });
-//        this.errorView.findViewById(R.id.btn_reload).setOnClickListener(v -> {
-//            errorView.setVisibility(View.GONE);
-//            callback.hideWebView();
-//            loadUrl(mUrl);
-//            LogUtils.d(TAG, "mUrlmUrlmUrl===" + mUrl);
-//        });
     }
-
 
 
     public String getCurrUrl() {

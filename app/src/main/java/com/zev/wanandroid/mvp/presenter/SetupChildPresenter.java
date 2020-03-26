@@ -7,6 +7,7 @@ import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.SetupChildContract;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
@@ -16,7 +17,6 @@ import javax.inject.Inject;
 
 import me.jessyan.rxerrorhandler.core.RxErrorHandler;
 import me.jessyan.rxerrorhandler.handler.ErrorHandleSubscriber;
-import timber.log.Timber;
 
 
 /**
@@ -64,6 +64,9 @@ public class SetupChildPresenter extends BasePresenter<SetupChildContract.Model,
                     @Override
                     public void onNext(BaseEntity<ChapterEntity> entity) {
                         if (entity.isSuccess()) {
+                            if (entity.getData().getCurPage() == 1) {
+                                AppLifecyclesImpl.getDiskLruCacheUtil().put("setup_child" + cid, entity.getData());
+                            }
                             mRootView.getChapterListByCid(entity.getData());
                         } else {
                             mRootView.getChapterError(entity.getErrorMsg());
@@ -74,7 +77,6 @@ public class SetupChildPresenter extends BasePresenter<SetupChildContract.Model,
                     public void onError(Throwable t) {
                         super.onError(t);
                         mRootView.getChapterError(t.getCause().getMessage());
-                        Timber.e("getChapterListByCid===%s", t.getCause().getMessage());
                     }
                 });
     }

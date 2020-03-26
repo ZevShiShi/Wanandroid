@@ -127,8 +127,8 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
                 .setLoadWithOverviewMode(true);
         webManager.getAgentWeb().getAgentWebSettings().
                 getWebSettings().setUseWideViewPort(true);
-//        webManager.getWebView().setScrollBarStyle(ConvertUtils.dp2px(10));
-
+        webManager.setErrorView(getLayoutInflater().inflate(R.layout.empty_layout, null));
+        
         // 双击webview监听
         gestureScanner = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
