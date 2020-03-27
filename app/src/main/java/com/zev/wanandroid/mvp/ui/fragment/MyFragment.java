@@ -280,7 +280,6 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
         } else if (resultCode == CustomData.USER_RESULT) {
             ToastUtils.showShort("hahaha");
             mPresenter.getUserInfo();
-            // 数量／总数 * 100
         }
     }
 

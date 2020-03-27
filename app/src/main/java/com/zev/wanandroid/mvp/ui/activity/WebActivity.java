@@ -247,11 +247,6 @@ public class WebActivity extends BaseMvpActivity<WebPresenter> implements WebCon
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -264,9 +259,22 @@ public class WebActivity extends BaseMvpActivity<WebPresenter> implements WebCon
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         webManager.destroyWeb();
+        super.onDestroy();
     }
+
+    @Override
+    protected void onResume() {
+        webManager.resumeWeb();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        webManager.pauseWeb();
+        super.onPause();
+    }
+
 
     @Override
     public void setupActivityComponent(@NonNull AppComponent appComponent) {
@@ -338,7 +346,7 @@ public class WebActivity extends BaseMvpActivity<WebPresenter> implements WebCon
 
             @Override
             public void onGoWebDetail(String url) {
-                webManager.loadUrl(url);
+
             }
 
             @Override

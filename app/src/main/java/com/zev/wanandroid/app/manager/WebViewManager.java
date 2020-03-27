@@ -1,35 +1,25 @@
 package com.zev.wanandroid.app.manager;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.net.http.SslError;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
-import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.LogUtils;
-import com.google.gson.Gson;
 import com.just.agentweb.AgentWeb;
 import com.just.agentweb.AgentWebConfig;
-import com.just.agentweb.AgentWebUIControllerImplBase;
 import com.just.agentweb.DefaultWebClient;
 import com.just.agentweb.WebChromeClient;
-
-import timber.log.Timber;
+import com.zev.wanandroid.R;
 
 /**
  * 一个基于AgentWeb框架封装的WebView
@@ -38,10 +28,8 @@ public class WebViewManager {
 
     private static final String TAG = "WebViewManager";
     private AgentWeb mAgentWeb;
-    private boolean isRefresh = true;
     private WebCallback callback;
     private View errorView;
-    private Activity activity;
     private String mUrl;
 
 
@@ -73,9 +61,9 @@ public class WebViewManager {
                 .setWebViewClient(new AgentWebViewClient())//WebViewClient ， 与 WebView 使用一致 ，但是请勿获取WebView调用setWebViewClient(xx)方法了,会覆盖AgentWeb DefaultWebClient,同时相应的中间件也会失效。
                 .setWebChromeClient(new AgentWebChromeClient(progress)) //WebChromeClient
                 .setSecurityType(AgentWeb.SecurityType.STRICT_CHECK) //严格模式 Android 4.2.2 以下会放弃注入对象 ，使用AgentWebView没影响。
-                .setAgentWebUIController(getAgentWebUiController())
+//                .setAgentWebUIController(getAgentWebUiController())
 //                .setMainFrameErrorView(R.layout.web_net_error_layout, -1) //参数1是错误显示的布局，参数2点击刷新控件ID -1表示点击整个布局都刷新， AgentWeb 3.0.0 加入。
-                .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.DISALLOW)//打开其他页面时，弹窗质询用户前往其他应用 AgentWeb 3.0.0 加入。
+                .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.ASK)//打开其他页面时，弹窗质询用户前往其他应用 AgentWeb 3.0.0 加入。
                 .interceptUnkownUrl() //拦截找不到相关页面的Url AgentWeb 3.0.0 加入。
                 .createAgentWeb()//创建AgentWeb。
                 .ready()//设置 WebSettings。
@@ -177,31 +165,14 @@ public class WebViewManager {
 //
 //    }
 
-    private AgentWebUIControllerImplBase getAgentWebUiController() {
-        return new AgentWebUIControllerImplBase() {
-            @Override
-            public void onMainFrameError(WebView view, int errorCode, String description, String failingUrl) {
-                // FIXME: 2019-07-17 由于框架作者没有修复超时或者网络错误页面，导致错误提示页面不消失的问题，待修复
-                LogUtils.d(TAG, "onMainFrameError===" + errorCode
-                        + ",description===" + description + ",failingUrl===" + failingUrl);
-//                if (failingUrl.contains("weixin")) {
-//                    // 避免出现默认的错误界面
-//                    if (mAgentWeb != null) {
-//                        mAgentWeb.getUrlLoader().loadUrl(getUrl());
-//                    }
-//                    return;
-//                }
-//                isError = true;
-//                if (errorView != null) {
-//                    // 避免出现默认的错误界面
-//                    if (mAgentWeb != null) {
-//                        mAgentWeb.getUrlLoader().loadUrl("about:blank");
-//                    }
-//                    errorView.setVisibility(View.VISIBLE);
-//                }
-            }
-        };
-    }
+//    private AgentWebUIControllerImplBase getAgentWebUiController() {
+//        return new AgentWebUIControllerImplBase() {
+//            @Override
+//            public void onMainFrameError(WebView view, int errorCode, String description, String failingUrl) {
+//                // FIXME: 2019-07-17 由于框架作者没有修复超时或者网络错误页面，导致错误提示页面不消失的问题，待修复
+//            }
+//        };
+//    }
 
     /**
      * 初始化在fragment中的webview
@@ -225,8 +196,8 @@ public class WebViewManager {
                 .setWebViewClient(new AgentWebViewClient())//WebViewClient ， 与 WebView 使用一致 ，但是请勿获取WebView调用setWebViewClient(xx)方法了,会覆盖AgentWeb DefaultWebClient,同时相应的中间件也会失效。
                 .setWebChromeClient(new AgentWebChromeClient(progress)) //WebChromeClient
                 .setSecurityType(AgentWeb.SecurityType.STRICT_CHECK) //严格模式 Android 4.2.2 以下会放弃注入对象 ，使用AgentWebView没影响。
-                .setAgentWebUIController(getAgentWebUiController())
-//                .setMainFrameErrorView(R.layout.web_net_error_layout, -1) //参数1是错误显示的布局，参数2点击刷新控件ID -1表示点击整个布局都刷新， AgentWeb 3.0.0 加入。
+//                .setAgentWebUIController(getAgentWebUiController())
+                .setMainFrameErrorView(R.layout.empty_layout, -1) //参数1是错误显示的布局，参数2点击刷新控件ID -1表示点击整个布局都刷新， AgentWeb 3.0.0 加入。
                 .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.DISALLOW)//打开其他页面时，弹窗质询用户前往其他应用 AgentWeb 3.0.0 加入。
                 .interceptUnkownUrl() //拦截找不到相关页面的Url AgentWeb 3.0.0 加入。
                 .createAgentWeb()//创建AgentWeb。
@@ -253,7 +224,6 @@ public class WebViewManager {
         if (url == null || activity == null || parentView == null || width == 0 || height == 0)
             return;
         this.mUrl = url;
-        this.activity = activity;
         this.callback = callback;
         mAgentWeb = AgentWeb.with(activity)//(FrameLayout) view) new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 .setAgentWebParent(parentView, -1, new LinearLayout.LayoutParams(width, height))//传入AgentWeb的父控件。
@@ -264,14 +234,14 @@ public class WebViewManager {
                 .setWebChromeClient(new AgentWebChromeClient(progress)) //WebChromeClient
 //                .setPermissionInterceptor(mPermissionInterceptor) //权限拦截 2.0.0 加入。
                 .setSecurityType(AgentWeb.SecurityType.STRICT_CHECK) //严格模式 Android 4.2.2 以下会放弃注入对象 ，使用AgentWebView没影响。
-                .setAgentWebUIController(getAgentWebUiController())
-//                .setMainFrameErrorView(R.layout.web_net_error_layout, -1) //参数1是错误显示的布局，参数2点击刷新控件ID -1表示点击整个布局都刷新， AgentWeb 3.0.0 加入。
+//                .setAgentWebUIController(getAgentWebUiController())
+                .setMainFrameErrorView(R.layout.empty_layout, -1) //参数1是错误显示的布局，参数2点击刷新控件ID -1表示点击整个布局都刷新， AgentWeb 3.0.0 加入。
 //                .useMiddlewareWebChrome(getMiddlewareWebChrome()) //设置WebChromeClient中间件，支持多个WebChromeClient，AgentWeb 3.0.0 加入。
 //                .useMiddlewareWebClient(getMiddlewareWebClient()) //设置WebViewClient中间件，支持多个WebViewClient， AgentWeb 3.0.0 加入。
 //                .setDownloadListener(mDownloadListener) 4.0.0 删除该API//下载回调
 //                .openParallelDownload()// 4.0.0删除该API 打开并行下载 , 默认串行下载。 请通过AgentWebDownloader#Extra实现并行下载
 //                .setNotifyIcon(R.drawable.ic_file_download_black_24dp) 4.0.0删除该api //下载通知图标。4.0.0后的版本请通过AgentWebDownloader#Extra修改icon
-                .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.DISALLOW)//打开其他页面时，弹窗质询用户前往其他应用 AgentWeb 3.0.0 加入。
+                .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.ASK)//打开其他页面时，弹窗质询用户前往其他应用 AgentWeb 3.0.0 加入。
                 .interceptUnkownUrl() //拦截找不到相关页面的Url AgentWeb 3.0.0 加入。
                 .createAgentWeb()//创建AgentWeb。
                 .ready()//设置 WebSettings。
@@ -294,7 +264,6 @@ public class WebViewManager {
      */
     public AgentWeb setupWebViewWithActivity(Activity activity, ViewGroup parentView, int width, int height, int progress, WebCallback callback) {
         if (activity == null || parentView == null || width == 0 || height == 0) return null;
-        this.activity = activity;
         this.callback = callback;
         mAgentWeb = AgentWeb.with(activity)//(FrameLayout) view) new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 .setAgentWebParent(parentView, -1, new LinearLayout.LayoutParams(width, height))//传入AgentWeb的父控件。
@@ -305,14 +274,14 @@ public class WebViewManager {
                 .setWebChromeClient(new AgentWebChromeClient(progress)) //WebChromeClient
 //                .setPermissionInterceptor(mPermissionInterceptor) //权限拦截 2.0.0 加入。
                 .setSecurityType(AgentWeb.SecurityType.STRICT_CHECK) //严格模式 Android 4.2.2 以下会放弃注入对象 ，使用AgentWebView没影响。
-                .setAgentWebUIController(getAgentWebUiController())
-//                .setMainFrameErrorView(R.layout.web_net_error_layout, -1) //参数1是错误显示的布局，参数2点击刷新控件ID -1表示点击整个布局都刷新， AgentWeb 3.0.0 加入。
+//                .setAgentWebUIController(getAgentWebUiController())
+                .setMainFrameErrorView(R.layout.empty_layout, -1) //参数1是错误显示的布局，参数2点击刷新控件ID -1表示点击整个布局都刷新， AgentWeb 3.0.0 加入。
 //                .useMiddlewareWebChrome(getMiddlewareWebChrome()) //设置WebChromeClient中间件，支持多个WebChromeClient，AgentWeb 3.0.0 加入。
 //                .useMiddlewareWebClient(getMiddlewareWebClient()) //设置WebViewClient中间件，支持多个WebViewClient， AgentWeb 3.0.0 加入。
 //                .setDownloadListener(mDownloadListener) 4.0.0 删除该API//下载回调
 //                .openParallelDownload()// 4.0.0删除该API 打开并行下载 , 默认串行下载。 请通过AgentWebDownloader#Extra实现并行下载
 //                .setNotifyIcon(R.drawable.ic_file_download_black_24dp) 4.0.0删除该api //下载通知图标。4.0.0后的版本请通过AgentWebDownloader#Extra修改icon
-                .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.DISALLOW)//打开其他页面时，弹窗质询用户前往其他应用 AgentWeb 3.0.0 加入。
+                .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.ASK)//打开其他页面时，弹窗质询用户前往其他应用 AgentWeb 3.0.0 加入。
                 .interceptUnkownUrl() //拦截找不到相关页面的Url AgentWeb 3.0.0 加入。
                 .createAgentWeb()//创建AgentWeb。
                 .ready()//设置 WebSettings。
@@ -342,13 +311,6 @@ public class WebViewManager {
         return null;
     }
 
-
-//    public void clearHistory() {
-//        if (mAgentWeb != null) {
-//            mAgentWeb.getWebCreator().getWebView().clearHistory();
-//            mAgentWeb.getWebCreator().getWebView().clearCache(true);
-//        }
-//    }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (mAgentWeb != null && mAgentWeb.handleKeyEvent(keyCode, event)) {
@@ -421,11 +383,10 @@ public class WebViewManager {
      * @return
      */
     public void goBack() {
-        String url = getCurrUrl();
-        getWebView().goBack();
-        // 如果遇到迷之无法返回上一页
-        if (getCurrUrl().equals(url)) {
-            getWebView().goBack();
+        if (getWebView() != null) {
+            if (getWebView().canGoBack()) {
+                getWebView().goBack();
+            }
         }
     }
 
@@ -451,85 +412,38 @@ public class WebViewManager {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean shouldOverrideUrlLoading(android.webkit.WebView view, WebResourceRequest request) {
-            LogUtils.d(TAG, "7.0以上 shouldOverrideUrlLoading:" + request.getUrl().toString());
-            return shouldOverrideUrlLoading(view, request.getUrl().toString());
+            callback.onGoWebDetail(request.getUrl().toString());
+            return super.shouldOverrideUrlLoading(view, request);
         }
-
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        @Nullable
-        @Override
-        public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, WebResourceRequest request) {
-            return super.shouldInterceptRequest(view, request);
-        }
-
 
         @Override
         public boolean shouldOverrideUrlLoading(final android.webkit.WebView view, String url) {
-            isRefresh = false;
-            String httpStr = url.substring(0, url.indexOf(":"));
-            LogUtils.d(TAG, "view:" + new Gson().toJson(view.getHitTestResult()));
-            LogUtils.d(TAG, "shouldOverrideUrlLoading:" + url);
-            LogUtils.d(TAG, "shouldOverrideUrlLoading httpStr=" + httpStr);
-
-//            android.webkit.WebView.HitTestResult hitTestResult = view.getHitTestResult();
-//            // 重定向
-//            if (hitTestResult.getType() != WebView.HitTestResult.UNKNOWN_TYPE) {
-//                if (callback != null) {
-//                    if (url.contains("cpro.baidu.com")) {
-//                        LogUtils.d(TAG, "zhujiang WebView2Activity……………………………………………………" + url);
-//                        callback.onGoWebDetail(url);
-//                        return false; // false
-//                    }
-//                    LogUtils.d(TAG, "zhujiang 其他界面……………………………………………………" + activity + "---" + "---" + url);
-//                    callback.onGoWebDetail(url);
-//                    return true; // true
-//                }
+            callback.onGoWebDetail(url);
+            return super.shouldOverrideUrlLoading(view, url);
+//            if (url.startsWith(httpStr)) {
+//                callback.onGoWebDetail(url);
+//            } else {
+//                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+//                ActivityUtils.startActivity(intent);
 //            }
-
-            LogUtils.d(TAG, "zhujiang……………………………………………………" + activity + "---" + "---" + url);
-            if (url.startsWith(httpStr)) {
-                callback.onGoWebDetail(url);
-            } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                ActivityUtils.startActivity(intent);
-            }
-            return true;
+//            return true;
         }
 
         @Override
         public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon) {
-            LogUtils.d(TAG, "onPageStarted mUrl:" + url + " onPageStarted  target:" + url);
-            if (errorView != null)
-                errorView.setVisibility(View.GONE);
-        }
-
-        @RequiresApi(api = Build.VERSION_CODES.M)
-        @Override
-        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            onReceivedError(view, error.getErrorCode(), error.getDescription().toString(), request.getUrl().toString());
-        }
-
-        @Override
-        public void onReceivedError(android.webkit.WebView view, int errorCode, String description, String failingUrl) {
-            super.onReceivedError(view, errorCode, description, failingUrl);
-            Timber.e("onReceivedError====" + errorCode + "===" + description + "===" + failingUrl);
-//            loadUrl("about:blank");// 清除掉默认错误页内容
-            if (errorView != null)
-                errorView.setVisibility(View.VISIBLE); // 当加载网页错误时，显示mErrorFrame的内容
-        }
-
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-//            super.onReceivedSslError(view, handler, error);
-            handler.proceed();// 接受所有网站的证书
+            super.onPageStarted(view, url, favicon);
         }
 
         @Override
         public void onPageFinished(android.webkit.WebView view, String url) {
             super.onPageFinished(view, url);
-            LogUtils.d(TAG, "  onPageFinished mUrl:" + url);
             if (callback != null)
                 callback.showWebView();
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
         }
 
         /*错误页回调该方法 ， 如果重写了该方法， 上面传入了布局将不会显示 ， 交由开发者实现，注意参数对齐。*/
@@ -537,32 +451,7 @@ public class WebViewManager {
 //            LogUtils.d(TAG, "AgentWebFragment onMainFrameError");
 //            agentWebUIController.onMainFrameError(view, errorCode, description, failingUrl);
 //        }
-
-
-        @Override
-        public void onReceivedHttpError(android.webkit.WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-            super.onReceivedHttpError(view, request, errorResponse);
-            LogUtils.d(TAG, "onReceivedHttpError:" + 3 + "  request:" + new Gson().toJson(request) + "  errorResponse:" + new Gson().toJson(errorResponse));
-        }
     }
-
-//    private void loadError() {
-//        if (vs != null) {
-//            errorView = vs.inflate().findViewById(R.id.ll_web_error);
-//            errorView.setVisibility(View.VISIBLE); // 当加载网页错误时，显示mErrorFrame的内容
-//
-//            errorView.setOnClickListener(v -> {
-//                errorView.setVisibility(View.GONE);
-//                callback.hideWebView();
-//                loadUrl(mUrl);
-//            });
-//            errorView.findViewById(R.id.btn_reload).setOnClickListener(v -> {
-//                errorView.setVisibility(View.GONE);
-//                callback.hideWebView();
-//                loadUrl(mUrl);
-//            });
-//        }
-//    }
 
 
     class AgentWebChromeClient extends WebChromeClient {
@@ -576,12 +465,11 @@ public class WebViewManager {
 
         @Override
         public void onProgressChanged(android.webkit.WebView view, int newProgress) {
+            super.onProgressChanged(view, newProgress);
             if (callback == null) return;
-            if (!isRefresh) return; // 跳转不刷新，防止闪屏
             if (callback instanceof WebCallbackEx) {
                 ((WebCallbackEx) callback).onProgress(view, newProgress);
             }
-            LogUtils.d(TAG, "onProgressChanged:" + newProgress + "  url:" + view.getUrl());
             if (newProgress >= progress) {
                 // 加载完成隐藏加载布局，显示新闻布局
                 callback.showWebView();
@@ -595,21 +483,6 @@ public class WebViewManager {
             if (callback != null && callback instanceof WebCallbackEx) {
                 ((WebCallbackEx) callback).onReceivedTitle(title, view.getUrl());
             }
-//            if (ObjectUtils.isNotEmpty(title)) {
-//                callback.showWebView();
-//            }
-        }
-
-        @Override
-        public void onShowCustomView(View view, CustomViewCallback callback) {
-            super.onShowCustomView(view, callback);
-            LogUtils.d(TAG, "WebChromeClient1 onShowCustomView==================" + view);
-        }
-
-        @Override
-        public void onHideCustomView() {
-            super.onHideCustomView();
-            LogUtils.d(TAG, "WebChromeClient1 onHideCustomView=============");
         }
     }
 

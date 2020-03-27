@@ -1,6 +1,7 @@
 package com.zev.wanandroid.mvp.model.api.service;
 
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
+import com.zev.wanandroid.mvp.model.entity.HotSearchEntity;
 import com.zev.wanandroid.mvp.model.entity.LinkEntity;
 import com.zev.wanandroid.mvp.model.entity.MyScoreEntity;
 import com.zev.wanandroid.mvp.model.entity.MyShareEntity;
@@ -100,4 +101,23 @@ public interface UserService {
      */
     @GET("user/lg/private_articles/{page}/json")
     Observable<BaseEntity<MyShareEntity>> getMyShard(@Path("page") int page);
+
+
+    /**
+     * 搜索热词
+     *
+     * @return
+     */
+    @GET("hotkey/json")
+    Observable<BaseArrayEntity<HotSearchEntity>> getHotSearch();
+
+    /**
+     * 搜索
+     *
+     * @param page
+     * @param key
+     * @return
+     */
+    @POST("article/query/{page}/json")
+    Observable<BaseEntity<ChapterEntity>> getSearch(@Path("page") int page, @Query("k") String key);
 }

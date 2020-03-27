@@ -170,6 +170,9 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
     }
 
     private void addCollectChapter(ChapterEntity entity) {
+        if (entity.getCurPage() == 1) {
+            allChapter.clear();
+        }
         total = entity.getTotal();
         addChapter(entity.getDatas());
         mAdapter.loadMoreComplete();

@@ -90,7 +90,7 @@ public class HomePresenter extends BasePresenter<HomeContract.Model, HomeContrac
                     public void onNext(BaseEntity<ChapterEntity> entity) {
                         if (entity.isSuccess()) {
                             if (entity.getData().getCurPage() == 1) {
-                                AppLifecyclesImpl.getDiskLruCacheUtil().put("chapterList", entity.getData().getDatas());
+                                AppLifecyclesImpl.getDiskLruCacheUtil().put("chapterList", entity.getData());
                             }
                             mRootView.getChapterList(entity.getData());
                         } else {

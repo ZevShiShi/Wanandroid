@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="?attr/colorPrimary"
+        app:contentInsetStart="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingStart="15dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="5dp">
+
+            <ImageView
+                android:id="@+id/search_back"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_arrow_back_white_24dp" />
+
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/web_circle"
+                android:ellipsize="end"
+                android:hint="@string/search_hint"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text=""
+                android:textColor="@color/white"
+                android:textColorHint="@color/color_ebebeb"
+                android:textSize="12sp"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/tv_search"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/search"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_hot_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/ll_search_chapter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <com.scwang.smartrefresh.layout.SmartRefreshLayout
+            android:id="@+id/refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srlAccentColor="@android:color/black"
+            app:srlEnablePreviewInEditMode="true"
+            app:srlPrimaryColor="@color/white">
+
+            <com.scwang.smartrefresh.layout.header.ClassicsHeader
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srlAccentColor="@color/color_53"
+                app:srlDrawableArrowSize="15dp"
+                app:srlTextSizeTime="10sp"
+                app:srlTextSizeTitle="12sp" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -66,7 +66,6 @@ public class WebDialogFragment extends BaseDialogFragment {
 
             @Override
             public void onGoWebDetail(String url) {
-                webManager.loadUrl(url);
             }
 
             @Override

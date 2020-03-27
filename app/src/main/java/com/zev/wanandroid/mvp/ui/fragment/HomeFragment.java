@@ -18,7 +18,6 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ObjectUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -37,6 +36,7 @@ import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
 import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.HomePresenter;
+import com.zev.wanandroid.mvp.ui.activity.SearchActivity;
 import com.zev.wanandroid.mvp.ui.activity.WebActivity;
 import com.zev.wanandroid.mvp.ui.activity.WebExActivity;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterAdapter;
@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import timber.log.Timber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
@@ -76,6 +77,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
     private boolean isScroll;
     private int totalCount;
     private int page;
+    private int topCount;
     private List<ChapterBean> allChapter = new ArrayList<>();
     private ChapterAdapter mAdapter;
 
@@ -161,6 +163,11 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         });
         mAdapter.setHeaderView(banner);
         mAdapter.setHeader(true);
+    }
+
+    @OnClick(R.id.rl_search)
+    public void onSearchClick(View view) {
+        ActivityUtils.startActivity(SearchActivity.class);
     }
 
     /**
@@ -254,7 +261,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         mAdapter.setEnableLoadMore(true);
         mAdapter.setOnLoadMoreListener(() -> {
             rvChapter.postDelayed(() -> {
-                if (allChapter.size() >= totalCount) {
+                if ((allChapter.size() - topCount) >= totalCount) {
                     mAdapter.loadMoreEnd();
                 } else {
                     mPresenter.getChapterList(++page);
@@ -264,10 +271,6 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         mAdapter.disableLoadMoreIfNotFullPage();
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             ChapterBean bean = mAdapter.getData().get(position);
-//            ActivityUtils.startActivity(new Intent(getActivity(), WebActivity.class)
-//                    .putExtra("url", bean.getLink())
-//                    .putExtra("id", bean.getId())
-//                    .putExtra("collect", bean.isCollect()));
             ActivityUtils.startActivity(new Intent(getActivity(), WebExActivity.class)
                     .putExtra("url", bean.getLink())
                     .putExtra("id", bean.getId())
@@ -304,8 +307,8 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
             mPresenter.getChapterTop();
         } else {
             addChapterTop(chapterTop);
-            List<Chapter> chapterList = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("chapterList");
-            addChapterList(chapterList);
+            ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("chapterList");
+            addChapterList(entity);
         }
     }
 
@@ -316,30 +319,30 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
     @Override
     public void bannerFail(String msg) {
-//        ToastUtils.showShort(msg);
     }
 
     @Override
     public void getChapterList(ChapterEntity entity) {
-        totalCount = entity.getTotal();
-        addChapterList(entity.getDatas());
+        addChapterList(entity);
     }
 
-    private void addChapterList(List<Chapter> chapters) {
-        addChapter(chapters, false);
+    private void addChapterList(ChapterEntity entity) {
+        totalCount = entity.getTotal();
+        addChapter(entity.getDatas(), false);
         mAdapter.loadMoreComplete();
         refreshLayout.finishRefresh();
     }
 
     @Override
     public void getChapterError(String msg) {
-//        ToastUtils.showShort(msg);
         mAdapter.loadMoreFail();
         refreshLayout.finishRefresh(false);
+        mAdapter.setEmptyView(R.layout.empty_layout, rvChapter);
     }
 
     @Override
     public void getChapterTop(List<Chapter> chapters) {
+        topCount = chapters.size();
         addChapterTop(chapters);
         mPresenter.getChapterList(page);
     }

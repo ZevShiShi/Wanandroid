@@ -105,11 +105,6 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
 
             @Override
             public void onGoWebDetail(String url) {
-                webManager.loadUrl(url);
-//                ActivityUtils.startActivity(new Intent(WebExActivity.this, WebActivity.class)
-//                    .putExtra("url", bean.getLink())
-//                    .putExtra("id", bean.getId())
-//                    .putExtra("collect", bean.isCollect()));
             }
 
             @Override
@@ -128,7 +123,7 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
         webManager.getAgentWeb().getAgentWebSettings().
                 getWebSettings().setUseWideViewPort(true);
         webManager.setErrorView(getLayoutInflater().inflate(R.layout.empty_layout, null));
-        
+
         // 双击webview监听
         gestureScanner = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -194,13 +189,21 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
         Timber.d("addCollectChapter=========error");
     }
 
+    @Override
+    protected void onResume() {
+        webManager.resumeWeb();
+        super.onResume();
+    }
 
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        if ((keyCode == KeyEvent.KEYCODE_BACK) && webManager.getWebView().canGoBack()) {
-//            webManager.goBack();
-//            return true;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
+    @Override
+    protected void onPause() {
+        webManager.pauseWeb();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        webManager.destroyWeb();
+        super.onDestroy();
+    }
 }
