@@ -7,6 +7,7 @@ import com.jess.arms.di.scope.ActivityScope;
 import com.jess.arms.integration.IRepositoryManager;
 import com.jess.arms.mvp.BaseModel;
 import com.zev.wanandroid.mvp.contract.SearchContract;
+import com.zev.wanandroid.mvp.model.api.service.HomeService;
 import com.zev.wanandroid.mvp.model.api.service.UserService;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
 import com.zev.wanandroid.mvp.model.entity.HotSearchEntity;
@@ -57,5 +58,15 @@ public class SearchModel extends BaseModel implements SearchContract.Model {
     @Override
     public Observable<BaseEntity<ChapterEntity>> getSearch(int page, String key) {
         return mRepositoryManager.obtainRetrofitService(UserService.class).getSearch(page, key);
+    }
+
+    @Override
+    public Observable<BaseEntity> addCollectChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).addCollectChapter(id);
+    }
+
+    @Override
+    public Observable<BaseEntity> unCollectByChapter(int id) {
+        return mRepositoryManager.obtainRetrofitService(HomeService.class).unCollectByChapter(id);
     }
 }

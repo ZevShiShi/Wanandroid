@@ -205,12 +205,10 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
         rvWxChapter.setAdapter(mAdapter);
 
         ChapterEntity chapters = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("wx_chapter" + chapterId);
-        if (ObjectUtils.isEmpty(chapters)) {
-            mPresenter.getChapterByWx(chapterId, page);
-        } else {
+        if (ObjectUtils.isNotEmpty(chapters)) {
             addChapterByWx(chapters);
         }
-
+        mPresenter.getChapterByWx(chapterId, page);
     }
 
 
@@ -244,8 +242,10 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
     }
 
     private void addChapterByWx(ChapterEntity entity) {
+        if (ObjectUtils.isEmpty(entity) || ObjectUtils.isEmpty(entity.getDatas())) return;
         if (entity.getCurPage() == 1) {
             allChapter.clear();
+            mAdapter.notifyDataSetChanged();
             refreshLayout.finishRefresh();
         }
         totalCount = entity.getTotal();

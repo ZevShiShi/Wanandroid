@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.blankj.utilcode.util.ActivityUtils;
-import com.blankj.utilcode.util.ObjectUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
@@ -90,11 +89,8 @@ public class NavigationFragment extends BaseMvpLazyFragment<NavigationPresenter>
                     .putExtra("collect", chapter.isCollect()));
         });
         List<NavigationEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("navigation_label");
-        if (ObjectUtils.isEmpty(entities)) {
-            mPresenter.getNavigation();
-        } else {
-            mAdapter.setNewData(entities);
-        }
+        mAdapter.setNewData(entities);
+        mPresenter.getNavigation();
     }
 
     /**

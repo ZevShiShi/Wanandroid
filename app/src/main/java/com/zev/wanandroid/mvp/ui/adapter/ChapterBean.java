@@ -1,6 +1,9 @@
 package com.zev.wanandroid.mvp.ui.adapter;
 
-public class ChapterBean {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class ChapterBean implements Parcelable {
     private boolean showNew;
     private boolean showTag;
     private boolean showTop;
@@ -181,4 +184,58 @@ public class ChapterBean {
                 '}';
     }
 
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte(this.showNew ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.showTag ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.showTop ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.showDesc ? (byte) 1 : (byte) 0);
+        dest.writeString(this.author);
+        dest.writeString(this.time);
+        dest.writeString(this.type);
+        dest.writeString(this.title);
+        dest.writeString(this.desc);
+        dest.writeString(this.tag);
+        dest.writeString(this.link);
+        dest.writeString(this.imgLink);
+        dest.writeInt(this.id);
+        dest.writeInt(this.originId);
+        dest.writeByte(this.collect ? (byte) 1 : (byte) 0);
+    }
+
+    protected ChapterBean(Parcel in) {
+        this.showNew = in.readByte() != 0;
+        this.showTag = in.readByte() != 0;
+        this.showTop = in.readByte() != 0;
+        this.showDesc = in.readByte() != 0;
+        this.author = in.readString();
+        this.time = in.readString();
+        this.type = in.readString();
+        this.title = in.readString();
+        this.desc = in.readString();
+        this.tag = in.readString();
+        this.link = in.readString();
+        this.imgLink = in.readString();
+        this.id = in.readInt();
+        this.originId = in.readInt();
+        this.collect = in.readByte() != 0;
+    }
+
+    public static final Parcelable.Creator<ChapterBean> CREATOR = new Parcelable.Creator<ChapterBean>() {
+        @Override
+        public ChapterBean createFromParcel(Parcel source) {
+            return new ChapterBean(source);
+        }
+
+        @Override
+        public ChapterBean[] newArray(int size) {
+            return new ChapterBean[size];
+        }
+    };
 }

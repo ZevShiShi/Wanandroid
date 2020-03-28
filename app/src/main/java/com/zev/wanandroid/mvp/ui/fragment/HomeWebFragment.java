@@ -1,42 +1,47 @@
 package com.zev.wanandroid.mvp.ui.fragment;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import com.blankj.utilcode.util.ObjectUtils;
-import com.flyco.tablayout.SlidingTabLayout;
+import com.blankj.utilcode.util.ScreenUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
-import com.zev.wanandroid.app.AppLifecyclesImpl;
-import com.zev.wanandroid.di.component.DaggerOfficialAccountComponent;
-import com.zev.wanandroid.mvp.contract.OfficialAccountContract;
-import com.zev.wanandroid.mvp.model.entity.SetupEntity;
-import com.zev.wanandroid.mvp.presenter.OfficialAccountPresenter;
+import com.zev.wanandroid.di.component.DaggerHomeWebComponent;
+import com.zev.wanandroid.mvp.contract.HomeWebContract;
+import com.zev.wanandroid.mvp.presenter.HomeWebPresenter;
+import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.adapter.CustomFragmentAdapter;
-import com.zev.wanandroid.mvp.ui.base.BaseMvpLazyFragment;
+import com.zev.wanandroid.mvp.ui.base.BaseMvpDialogFragment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
 
 /**
+ * 一个DialogFragment中包含ViewPager选项卡的界面
  * ================================================
  * Description:
  * <p>
- * Created by MVPArmsTemplate on 02/25/2020 13:26
+ * Created by MVPArmsTemplate on 03/28/2020 17:03
  * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
@@ -44,26 +49,26 @@ import static com.jess.arms.utils.Preconditions.checkNotNull;
  * <a href="https://github.com/JessYanCoding/MVPArmsTemplate">模版请保持更新</a>
  * ================================================
  */
-public class OfficialAccountFragment extends BaseMvpLazyFragment<OfficialAccountPresenter> implements OfficialAccountContract.View {
+public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> implements HomeWebContract.View {
+
+    @BindView(R.id.vp_home_web)
+    ViewPager vpWeb;
+    private CustomFragmentAdapter mAdapter;
 
 
-    @BindView(R.id.wx_tab_layout)
-    SlidingTabLayout wxTabLayout;
-    @BindView(R.id.vp_wx)
-    ViewPager vpWx;
-
-    CustomFragmentAdapter mAdapter;
-    private List<String> titleList = new ArrayList<>();
-    private List<Fragment> fragmentList = new ArrayList<>();
-
-    public static OfficialAccountFragment newInstance() {
-        OfficialAccountFragment fragment = new OfficialAccountFragment();
-        return fragment;
+    public static HomeWebFragment newInstance(ArrayList<ChapterBean> beans, int position) {
+        HomeWebFragment f = new HomeWebFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("pos", position);
+        bundle.putParcelableArrayList("chapter", beans);
+        f.setArguments(bundle);
+        return f;
     }
+
 
     @Override
     public void setupFragmentComponent(@NonNull AppComponent appComponent) {
-        DaggerOfficialAccountComponent //如找不到该类,请编译一下项目
+        DaggerHomeWebComponent //如找不到该类,请编译一下项目
                 .builder()
                 .appComponent(appComponent)
                 .view(this)
@@ -72,13 +77,52 @@ public class OfficialAccountFragment extends BaseMvpLazyFragment<OfficialAccount
     }
 
     @Override
+    public void onResume() {
+        ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.dialogAnim;
+        getDialog().getWindow().getAttributes().gravity = Gravity.BOTTOM;
+        getDialog().getWindow().setAttributes((WindowManager.LayoutParams) params);
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // 半透明背景
+        getDialog().setCancelable(false);
+        getDialog().setCanceledOnTouchOutside(false);
+        getDialog().setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                return true;
+            }
+            return false;
+        });
+        super.onResume();
+    }
+
+    @Override
     public View initView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_official_account, container, false);
+        return inflater.inflate(R.layout.fragment_home_web, container, false);
     }
 
     @Override
     public void initData(@Nullable Bundle savedInstanceState) {
+        ArrayList<ChapterBean> beans = getArguments().getParcelableArrayList("chapter");
+        int pos = getArguments().getInt("pos", 0);
+        if (ObjectUtils.isEmpty(beans)) {
+            dismiss();
+            return;
+        }
+//        vpWeb.getLayoutParams().width = ScreenUtils.getScreenWidth() - ConvertUtils.dp2px(60);
+        vpWeb.getLayoutParams().height = ScreenUtils.getScreenHeight() / 4 * 3;
+        vpWeb.setPageMargin(30);
+        mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
+        for (ChapterBean c : beans) {
+            mAdapter.addFragment(HomeWebPagerFragment.newInstance(c.getLink()));
+        }
+        vpWeb.setAdapter(mAdapter);
+        vpWeb.setCurrentItem(pos, true);
+    }
 
+    @OnClick(R.id.iv_close)
+    public void onCloseCLick(View view) {
+        dismiss();
     }
 
     /**
@@ -149,35 +193,4 @@ public class OfficialAccountFragment extends BaseMvpLazyFragment<OfficialAccount
 
     }
 
-    @Override
-    protected void lazyLoadData() {
-        List<SetupEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("wx_tab");
-        addWxTab(entities);
-        mPresenter.getWxTab();
-    }
-
-    @Override
-    public void getWxTab(List<SetupEntity> entities) {
-        addWxTab(entities);
-    }
-
-    private void addWxTab(List<SetupEntity> entities) {
-        if (ObjectUtils.isEmpty(entities)) return;
-        titleList.clear();
-        fragmentList.clear();
-        for (SetupEntity e : entities) {
-            titleList.add(e.getName());
-            fragmentList.add(WxChildFragment.newInstance(e.getId()));
-        }
-        String[] titles = titleList.toArray(new String[titleList.size()]);
-        if (mAdapter == null) {
-            mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
-            mAdapter.updateFragment(fragmentList);
-            vpWx.setAdapter(mAdapter);
-            wxTabLayout.setViewPager(vpWx, titles);
-        } else {
-            wxTabLayout.notifyDataSetChanged();
-            mAdapter.updateFragment(fragmentList);
-        }
-    }
 }

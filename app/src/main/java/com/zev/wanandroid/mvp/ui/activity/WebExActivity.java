@@ -9,7 +9,6 @@ import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
@@ -79,7 +78,7 @@ public class WebExActivity extends BaseMvpActivity<WebExPresenter> implements We
     @Override
     public void initData(@Nullable Bundle savedInstanceState) {
         setLightStateMode();
-        BarUtils.setNavBarVisibility(this, false);
+//        BarUtils.setNavBarVisibility(this, false);
         mUrl = getIntent().getStringExtra("url");
         if (ObjectUtils.isEmpty(mUrl)) {
             finish();

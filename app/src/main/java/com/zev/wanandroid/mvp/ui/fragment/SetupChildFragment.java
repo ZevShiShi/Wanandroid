@@ -208,11 +208,8 @@ public class SetupChildFragment extends BaseMvpLazyFragment<SetupChildPresenter>
         rvSetupChapter.setAdapter(mAdapter);
 
         ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("setup_child" + cid);
-        if (ObjectUtils.isEmpty(entity)) {
-            mPresenter.getChapterListByCid(page, cid);
-        } else {
-            addChapterList(entity);
-        }
+        addChapterList(entity);
+        mPresenter.getChapterListByCid(page, cid);
     }
 
 
@@ -246,8 +243,10 @@ public class SetupChildFragment extends BaseMvpLazyFragment<SetupChildPresenter>
     }
 
     private void addChapterList(ChapterEntity entity) {
+        if (ObjectUtils.isEmpty(entity) || ObjectUtils.isEmpty(entity.getDatas())) return;
         if (entity.getCurPage() == 1) {
             allChapter.clear();
+            mAdapter.notifyDataSetChanged();
             refreshLayout.finishRefresh();
         }
         totalCount = entity.getTotal();

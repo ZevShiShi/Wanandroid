@@ -68,7 +68,6 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
     private int total;
     private int page;
     private int removePos;
-    private boolean isRefresh;
 
 
     public static ChapterCollectFragment newInstance() {
@@ -170,8 +169,10 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
     }
 
     private void addCollectChapter(ChapterEntity entity) {
+        if (ObjectUtils.isEmpty(entity) || ObjectUtils.isEmpty(entity.getDatas())) return;
         if (entity.getCurPage() == 1) {
             allChapter.clear();
+            mAdapter.notifyDataSetChanged();
         }
         total = entity.getTotal();
         addChapter(entity.getDatas());
@@ -215,8 +216,6 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
         rvCollect.setAdapter(mAdapter);
 
         refreshLayout.setOnRefreshListener(refreshLayout -> {
-            isRefresh = true;
-            allChapter.clear();
             mPresenter.getMyCollect(page = 0);
         });
 
@@ -232,16 +231,13 @@ public class ChapterCollectFragment extends BaseMvpLazyFragment<ChapterCollectPr
             ChapterBean bean = mAdapter.getData().get(pos);// 去掉header
 //            Timber.d("setLikeListener===" + bean.getTitle() + "===" + bean.isCollect());
             if (!like) {
-                mPresenter.unCollect(bean.getId());
+                mPresenter.unCollect(bean.getId(), bean.getOriginId());
             }
         });
 
         ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("collect_chapter");
-        if (ObjectUtils.isEmpty(entity)) {
-            mPresenter.getMyCollect(page);
-        } else {
-            addCollectChapter(entity);
-        }
+        addCollectChapter(entity);
+        mPresenter.getMyCollect(page);
     }
 
 

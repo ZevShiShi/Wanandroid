@@ -85,6 +85,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/black"
+                android:textSize="14sp"
                 tools:text="湿哒哒湿&quot;哒哒湿哒哒湿哒哒湿哒哒湿哒哒湿哒哒湿哒哒湿哒哒湿哒哒湿哒哒" />
 
 

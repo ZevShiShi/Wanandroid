@@ -18,17 +18,22 @@ import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.zev.wanandroid.R;
 import com.zev.wanandroid.app.AppLifecyclesImpl;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerSearchComponent;
 import com.zev.wanandroid.mvp.contract.SearchContract;
 import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
 import com.zev.wanandroid.mvp.model.entity.HotSearchBean;
 import com.zev.wanandroid.mvp.model.entity.HotSearchEntity;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.SearchPresenter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterAdapter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.adapter.HotSearchAdapter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpActivity;
+
+import org.simple.eventbus.Subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +112,7 @@ public class SearchActivity extends BaseMvpActivity<SearchPresenter> implements 
         mHotSearchAdapter.setSelectCallback((groupPos, pos) -> {
             mKey = hotSearchBeans.get(groupPos).names.get(pos);
             etSearch.setText(mKey);
-//            mPresenter.getSearch(page = 0, mKey);
+            searchAction();
         });
         List<HotSearchEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("hot_search");
         if (ObjectUtils.isEmpty(entities)) {
@@ -137,7 +142,14 @@ public class SearchActivity extends BaseMvpActivity<SearchPresenter> implements 
         });
 
         mChapterAdapter.setLikeListener((like, pos) -> {
-
+            ChapterBean bean = mChapterAdapter.getData().get(pos);
+            if (like) {
+                mPresenter.addCollect(bean.getId());
+            } else {
+                mPresenter.unCollect(bean.getId());
+            }
+            bean.setCollect(like);
+            mChapterAdapter.refreshNotifyItemChanged(pos);
         });
         mChapterAdapter.setNewData(allChapter);
         rvSearch.setAdapter(mChapterAdapter);
@@ -235,6 +247,21 @@ public class SearchActivity extends BaseMvpActivity<SearchPresenter> implements 
         mChapterAdapter.setEmptyView(R.layout.empty_layout, rvSearch);
     }
 
+    @Override
+    public void addCollectChapter(BaseEntity entity) {
+
+    }
+
+    @Override
+    public void unCollectChapter(BaseEntity entity) {
+
+    }
+
+    @Override
+    public void collectError(String msg) {
+
+    }
+
     public void showSearchList(boolean showSearch) {
         llSearch.setVisibility(showSearch ? View.VISIBLE : View.GONE);
         rvHotSearch.setVisibility(showSearch ? View.GONE : View.VISIBLE);
@@ -308,6 +335,21 @@ public class SearchActivity extends BaseMvpActivity<SearchPresenter> implements 
             bean.setShowTop(false);
             bean.setShowDesc(ObjectUtils.isNotEmpty(c.getDesc()));
             allChapter.add(bean);
+        }
+    }
+
+
+    @Subscriber(tag = EventBusTags.UPDATE_COLLECT)
+    public void onChangeZan(EventBusData data) {
+        if (mChapterAdapter != null) {
+            for (int i = 0; i < mChapterAdapter.getData().size(); i++) {
+                ChapterBean bean = mChapterAdapter.getData().get(i);
+                if (data.id == bean.getId()) {
+                    bean.setCollect(data.like);
+                    break;
+                }
+            }
+            mChapterAdapter.notifyDataSetChanged();
         }
     }
 }

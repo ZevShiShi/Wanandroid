@@ -24,6 +24,7 @@ import com.zev.wanandroid.mvp.presenter.ProjectPresenter;
 import com.zev.wanandroid.mvp.ui.adapter.CustomFragmentAdapter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpLazyFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,6 +53,7 @@ public class ProjectFragment extends BaseMvpLazyFragment<ProjectPresenter> imple
     ViewPager vpPro;
 
     CustomFragmentAdapter mAdapter;
+    private List<Fragment> fragmentList = new ArrayList<>();
 
 
     public static ProjectFragment newInstance() {
@@ -150,11 +152,8 @@ public class ProjectFragment extends BaseMvpLazyFragment<ProjectPresenter> imple
     @Override
     protected void lazyLoadData() {
         List<SetupEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("pro_tab");
-        if (ObjectUtils.isEmpty(entities)) {
-            mPresenter.getProjectTab();
-        } else {
-            addProTab(entities);
-        }
+        addProTab(entities);
+        mPresenter.getProjectTab();
     }
 
     @Override
@@ -163,14 +162,23 @@ public class ProjectFragment extends BaseMvpLazyFragment<ProjectPresenter> imple
     }
 
     private void addProTab(List<SetupEntity> entities) {
-        mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
+        if (ObjectUtils.isEmpty(entities)) return;
+        fragmentList.clear();
         String[] titles = new String[entities.size()];
         for (int i = 0; i < entities.size(); i++) {
             SetupEntity e = entities.get(i);
             titles[i] = e.getName();
-            mAdapter.addFragment(ProjectChildFragment.newInstance(e.getId()));
+            fragmentList.add(ProjectChildFragment.newInstance(e.getId()));
         }
-        vpPro.setAdapter(mAdapter);
-        tabLayout.setViewPager(vpPro, titles);
+        if (mAdapter == null) {
+            mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
+            mAdapter.updateFragment(fragmentList);
+            vpPro.setAdapter(mAdapter);
+            tabLayout.setViewPager(vpPro, titles);
+        } else {
+            tabLayout.notifyDataSetChanged();
+            mAdapter.updateFragment(fragmentList);
+        }
+
     }
 }

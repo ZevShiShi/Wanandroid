@@ -5,6 +5,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
 
+import com.blankj.utilcode.util.ObjectUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +50,11 @@ public class CustomFragmentAdapter extends FragmentPagerAdapter {
         fm.beginTransaction().hide(fragment).commitAllowingStateLoss();
     }
 
+    /**
+     * 适合用来不更新fragment
+     *
+     * @param fragment
+     */
     public void addFragment(Fragment fragment) {
         if (fragment.isAdded()) {
             return;
@@ -55,5 +62,16 @@ public class CustomFragmentAdapter extends FragmentPagerAdapter {
         fragmentList.add(fragment);
     }
 
+    /**
+     * 适合用来频繁更新fragment
+     *
+     * @param fragments
+     */
+    public void updateFragment(List<Fragment> fragments) {
+        if (ObjectUtils.isEmpty(fragments)) return;
+        fragmentList.clear();
+        fragmentList.addAll(fragments);
+        notifyDataSetChanged();
+    }
 
 }

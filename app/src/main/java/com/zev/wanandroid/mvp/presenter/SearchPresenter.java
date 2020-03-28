@@ -108,4 +108,48 @@ public class SearchPresenter extends BasePresenter<SearchContract.Model, SearchC
                     }
                 });
     }
+
+
+    public void addCollect(int id) {
+        mModel.addCollectChapter(id)
+                .compose(RxUtils.applySchedulers(mRootView))
+                .subscribe(new ErrorHandleSubscriber<BaseEntity>(mErrorHandler) {
+                    @Override
+                    public void onNext(BaseEntity entity) {
+                        if (entity.getErrorCode() == 0) {
+                            mRootView.addCollectChapter(entity);
+                        } else {
+                            mRootView.collectError(entity.getErrorMsg());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        super.onError(t);
+                        mRootView.collectError(t.getCause().getMessage());
+                    }
+                });
+    }
+
+
+    public void unCollect(int id) {
+        mModel.unCollectByChapter(id)
+                .compose(RxUtils.applySchedulers(mRootView))
+                .subscribe(new ErrorHandleSubscriber<BaseEntity>(mErrorHandler) {
+                    @Override
+                    public void onNext(BaseEntity entity) {
+                        if (entity.getErrorCode() == 0) {
+                            mRootView.unCollectChapter(entity);
+                        } else {
+                            mRootView.collectError(entity.getErrorMsg());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        super.onError(t);
+                        mRootView.collectError(t.getCause().getMessage());
+                    }
+                });
+    }
 }

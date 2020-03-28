@@ -18,6 +18,7 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ObjectUtils;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -50,7 +51,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import timber.log.Timber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
@@ -78,8 +78,9 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
     private int totalCount;
     private int page;
     private int topCount;
-    private List<ChapterBean> allChapter = new ArrayList<>();
+    private ArrayList<ChapterBean> allChapter = new ArrayList<>();
     private ChapterAdapter mAdapter;
+    private HomeWebFragment homeWebFragment;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -108,6 +109,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
 
     private void setupBanner(List<BannerEntity> entities) {
+        if (ObjectUtils.isEmpty(entities)) return;
         banner = new Banner(getActivity());
         banner.setLayoutParams(new LinearLayout.LayoutParams(-1, ConvertUtils.dp2px(250)));
         //设置banner样式
@@ -277,9 +279,15 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
                     .putExtra("collect", bean.isCollect()));
 
         });
+        mAdapter.setOnItemLongClickListener(new BaseQuickAdapter.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(BaseQuickAdapter adapter, View view, int position) {
+                showWebPop(position);
+                return false;
+            }
+        });
         mAdapter.setLikeListener((like, pos) -> {
             ChapterBean bean = mAdapter.getData().get(pos);
-            Timber.d("setLikeListener===" + bean.getTitle() + "===" + bean.isCollect() + "==" + pos);
             if (like) {
                 mPresenter.addCollect(bean.getId());
             } else {
@@ -296,21 +304,20 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         rvChapter.setAdapter(mAdapter);
 
         List<BannerEntity> bannerEntityList = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("banner");
-        if (ObjectUtils.isEmpty(bannerEntityList)) {
-            mPresenter.getBanner();
-        } else {
-            setupBanner(bannerEntityList);
-        }
+        setupBanner(bannerEntityList);
         List<Chapter> chapterTop = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("chapterTop");
-        Timber.e("chapterTop====" + chapterTop);
-        if (ObjectUtils.isEmpty(chapterTop)) {
-            mPresenter.getChapterTop();
-        } else {
-            addChapterTop(chapterTop);
-            ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("chapterList");
-            addChapterList(entity);
-        }
+        addChapterTop(chapterTop);
+        ChapterEntity entity = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("chapterList");
+        addChapterList(entity);
+        mPresenter.getBanner();
+        mPresenter.getChapterTop();
     }
+
+    private void showWebPop(int position) {
+        homeWebFragment = HomeWebFragment.newInstance(allChapter, position);
+        homeWebFragment.show(getChildFragmentManager(), "HomeWeb");
+    }
+
 
     @Override
     public void showBanner(List<BannerEntity> entities) {
@@ -327,6 +334,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
     }
 
     private void addChapterList(ChapterEntity entity) {
+        if (ObjectUtils.isEmpty(entity) || ObjectUtils.isEmpty(entity.getDatas())) return;
         totalCount = entity.getTotal();
         addChapter(entity.getDatas(), false);
         mAdapter.loadMoreComplete();
@@ -348,6 +356,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
     }
 
     private void addChapterTop(List<Chapter> chapters) {
+        if (ObjectUtils.isEmpty(chapters)) return;
         allChapter.clear();
         addChapter(chapters, true);
         mAdapter.notifyDataSetChanged();

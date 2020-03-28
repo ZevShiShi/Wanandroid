@@ -80,8 +80,8 @@ public class ChapterCollectPresenter extends BasePresenter<ChapterCollectContrac
                 });
     }
 
-    public void unCollect(int id) {
-        mModel.unCollectByMy(id, -1)
+    public void unCollect(int id, int originId) {
+        mModel.unCollectByMy(id, originId)
                 .compose(RxUtils.applySchedulers(mRootView))
                 .subscribe(new ErrorHandleSubscriber<BaseEntity>(mErrorHandler) {
                     @Override

@@ -17,7 +17,6 @@ import android.widget.EditText;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -224,11 +223,8 @@ public class LinkCollectFragment extends BaseMvpLazyFragment<LinkCollectPresente
         });
 
         List<LinkEntity> entities = AppLifecyclesImpl.getDiskLruCacheUtil().getObjectCache("collect_link");
-        if (ObjectUtils.isEmpty(entities)) {
-            mPresenter.getMyLink();
-        } else {
-            mAdapter.setNewData(entities);
-        }
+        mAdapter.setNewData(entities);
+        mPresenter.getMyLink();
     }
 
     private void openEditUrl(LinkEntity entity) {

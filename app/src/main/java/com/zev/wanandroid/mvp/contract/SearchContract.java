@@ -35,6 +35,12 @@ public interface SearchContract {
         void searchNoData();
 
         void searchError();
+
+        void addCollectChapter(BaseEntity entity);
+
+        void unCollectChapter(BaseEntity entity);
+
+        void collectError(String msg);
     }
 
     //Model层定义接口,外部只需关心Model返回的数据,无需关心内部细节,即是否使用缓存
@@ -43,5 +49,9 @@ public interface SearchContract {
         Observable<BaseArrayEntity<HotSearchEntity>> getHotSearch();
 
         Observable<BaseEntity<ChapterEntity>> getSearch(int page, String key);
+
+        Observable<BaseEntity> addCollectChapter(int id);
+
+        Observable<BaseEntity> unCollectByChapter(int id);
     }
 }

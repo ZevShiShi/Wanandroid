@@ -4,6 +4,7 @@ package com.zev.wanandroid.mvp.ui.fragment;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,9 +90,10 @@ public class WebDialogFragment extends BaseDialogFragment {
     @Override
     public void onResume() {
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = ScreenUtils.getScreenWidth();
-        params.height = ScreenUtils.getScreenHeight();
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         getDialog().getWindow().getAttributes().windowAnimations = R.style.dialogAnim;
+        getDialog().getWindow().getAttributes().gravity = Gravity.BOTTOM;
         getDialog().getWindow().setAttributes((WindowManager.LayoutParams) params);
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // 半透明背景
         getDialog().setCancelable(false);
