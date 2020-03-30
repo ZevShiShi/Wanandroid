@@ -9,8 +9,16 @@
     android:padding="10dp"
     tools:context=".mvp.ui.activity.WebActivity">
 
-    <FrameLayout
-        android:id="@+id/fl_web_parent"
+    <com.zev.wanandroid.mvp.ui.view.LikeLayout
+        android:id="@+id/like_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <FrameLayout
+            android:id="@+id/fl_web_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.zev.wanandroid.mvp.ui.view.LikeLayout>
 </LinearLayout>

@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -19,11 +21,18 @@ import com.blankj.utilcode.util.ScreenUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.app.manager.WebViewManager;
 import com.zev.wanandroid.di.component.DaggerHomeWebPagerComponent;
 import com.zev.wanandroid.mvp.contract.HomeWebPagerContract;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.HomeWebPagerPresenter;
+import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpFragment;
+import com.zev.wanandroid.mvp.ui.view.LikeLayout;
+
+import org.simple.eventbus.EventBus;
 
 import java.util.List;
 
@@ -51,11 +60,17 @@ public class HomeWebPagerFragment extends BaseMvpFragment<HomeWebPagerPresenter>
 
     @BindView(R.id.fl_web_parent)
     FrameLayout webParent;
+    @BindView(R.id.like_layout)
+    LikeLayout likeLayout;
 
-    public static HomeWebPagerFragment newInstance(String url) {
+    private GestureDetector gestureScanner;
+    private ChapterBean chapterBean;
+
+
+    public static HomeWebPagerFragment newInstance(ChapterBean bean) {
         HomeWebPagerFragment fragment = new HomeWebPagerFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("url", url);
+        bundle.putParcelable("chapterBean", bean);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -156,11 +171,11 @@ public class HomeWebPagerFragment extends BaseMvpFragment<HomeWebPagerPresenter>
      * 第一次可见时触发调用,此处实现具体的数据请求逻辑
      */
     protected void lazyLoadData() {
-        String url = getArguments().getString("url");
-        if (ObjectUtils.isEmpty(url)) return;
+        chapterBean = getArguments().getParcelable("chapterBean");
+        if (ObjectUtils.isEmpty(chapterBean)) return;
         webParent.getLayoutParams().width = ScreenUtils.getScreenWidth() - ConvertUtils.dp2px(60);
         webParent.getLayoutParams().height = ScreenUtils.getScreenHeight() / 4 * 3;
-        webManager.setupWebViewWithFragment(url, this, webParent, -1, -1, 30, new WebViewManager.WebCallbackEx() {
+        webManager.setupWebViewWithFragment(chapterBean.getLink(), this, webParent, -1, -1, 30, new WebViewManager.WebCallbackEx() {
             @Override
             public void onProgress(WebView view, int newProgress) {
 
@@ -190,6 +205,20 @@ public class HomeWebPagerFragment extends BaseMvpFragment<HomeWebPagerPresenter>
                 .setLoadWithOverviewMode(true);
         webManager.getAgentWeb().getAgentWebSettings().getWebSettings()
                 .setUseWideViewPort(true);
+
+        // 双击webview监听
+        gestureScanner = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                likeLayout.addLoveView(e.getRawX(), e.getRawY());
+                if (!chapterBean.isCollect()) {
+                    mPresenter.addCollect(chapterBean.getId());
+                    EventBus.getDefault().post(true, EventBusTags.REFRESH_WEB_COLLECT);
+                }
+                return true;
+            }
+        });
+        webManager.getWebView().setOnTouchListener((v, event) -> gestureScanner.onTouchEvent(event));
     }
 
     @Override
@@ -244,4 +273,20 @@ public class HomeWebPagerFragment extends BaseMvpFragment<HomeWebPagerPresenter>
         super.onDestroyView();
     }
 
+    @Override
+    public void addCollectChapter(BaseEntity entity) {
+        if (chapterBean != null) {
+            EventBus.getDefault().post(new EventBusData(true, chapterBean.getId()), EventBusTags.UPDATE_COLLECT);
+        }
+    }
+
+    @Override
+    public void collectError(String msg) {
+
+    }
+
+
+    public void back() {
+        webManager.goBack();
+    }
 }

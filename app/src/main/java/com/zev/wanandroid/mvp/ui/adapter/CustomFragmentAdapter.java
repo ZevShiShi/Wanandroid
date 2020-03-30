@@ -74,4 +74,18 @@ public class CustomFragmentAdapter extends FragmentPagerAdapter {
         notifyDataSetChanged();
     }
 
+    public void clearAll() {
+        // 清理适配器中的所有fragment，防止内存泄漏
+        for (Fragment f : fragmentList) {
+            fm.beginTransaction().remove(f).commitAllowingStateLoss();
+        }
+        fragmentList.clear();
+        notifyDataSetChanged();
+        fragmentList = null;
+    }
+
+    public List<Fragment> getData() {
+        return fragmentList;
+    }
+
 }

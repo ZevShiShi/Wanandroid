@@ -280,7 +280,7 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == PictureConfig.CHOOSE_REQUEST && data != null) {// 图片选择结果回调
+            if (requestCode == PictureConfig.CHOOSE_REQUEST && data != null) { // 图片选择结果回调
 
                 List<LocalMedia> images = PictureSelector.obtainMultipleResult(data);
                 LocalMedia img = images.get(0);
@@ -294,7 +294,6 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
                         SPUtils.getInstance().put("profile_image_path", path);
                     }
                 }
-
             }
         } else if (resultCode == CustomData.USER_RESULT) {
             mPresenter.getUserInfo();

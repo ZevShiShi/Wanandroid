@@ -9,11 +9,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -33,9 +31,9 @@ import com.zev.wanandroid.mvp.presenter.HomeWebPresenter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.adapter.CustomFragmentAdapter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpDialogFragment;
-import com.zev.wanandroid.mvp.ui.view.LikeLayout;
 
 import org.simple.eventbus.EventBus;
+import org.simple.eventbus.Subscriber;
 
 import java.util.ArrayList;
 
@@ -64,10 +62,7 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
     ViewPager vpWeb;
     @BindView(R.id.tpv_zan)
     ThumbUpView zanView;
-    @BindView(R.id.like_layout)
-    LikeLayout likeLayout;
 
-    private GestureDetector gestureScanner;
     private CustomFragmentAdapter mAdapter;
     private int mCurPos;
     private int mId;
@@ -130,9 +125,7 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
         vpWeb.setPageMargin(30);
         mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
         for (ChapterBean c : beans) {
-//            fragmentList.add(HomeWebPagerFragment.newInstance(c.getLink()));
-//            mAdapter.updateFragment(fragmentList);
-            mAdapter.addFragment(HomeWebPagerFragment.newInstance(c.getLink()));
+            mAdapter.addFragment(HomeWebPagerFragment.newInstance(c));
         }
         vpWeb.setAdapter(mAdapter);
         vpWeb.setCurrentItem(pos, true);
@@ -177,17 +170,26 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
         });
 
         // 双击webview监听
-        gestureScanner = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-                likeLayout.addLoveView(e.getRawX(), e.getRawY());
-                if (!collect) {
-                    mPresenter.addCollect(mId);
-                }
-                return true;
-            }
-        });
-        vpWeb.setOnTouchListener((v, event) -> gestureScanner.onTouchEvent(event));
+//        gestureScanner = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+//            @Override
+//            public boolean onDoubleTap(MotionEvent e) {
+//                likeLayout.addLoveView(e.getRawX(), e.getRawY());
+//                if (!collect) {
+//                    mId = beans.get(mCurPos).getId();
+//                    mPresenter.addCollect(mId);
+//                    zanView.setLike();
+//                }
+//                return true;
+//            }
+//        });
+//        flWeb.setOnTouchListener((v, event) -> gestureScanner.onTouchEvent(event));
+    }
+
+    @Subscriber(tag = EventBusTags.REFRESH_WEB_COLLECT)
+    public void eventCollect(boolean collect) {
+        if (zanView != null) {
+            zanView.setLike();
+        }
     }
 
     @OnClick(R.id.iv_close)
@@ -276,5 +278,20 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
     @Override
     public void collectError(String msg) {
 
+    }
+
+    @OnClick(R.id.iv_back)
+    public void onBack(View view) {
+        ((HomeWebPagerFragment) mAdapter.getData().get(mCurPos)).back();
+    }
+
+
+    @Override
+    public void dismiss() {
+        if (mAdapter != null) {
+            mAdapter.clearAll();
+            mAdapter = null;
+        }
+        super.dismiss();
     }
 }
