@@ -20,15 +20,22 @@ import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
+import com.ldoublem.thumbUplib.ThumbUpView;
 import com.zev.wanandroid.R;
+import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.di.component.DaggerHomeWebComponent;
 import com.zev.wanandroid.mvp.contract.HomeWebContract;
+import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.HomeWebPresenter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.adapter.CustomFragmentAdapter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpDialogFragment;
 
+import org.simple.eventbus.EventBus;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -53,8 +60,12 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
 
     @BindView(R.id.vp_home_web)
     ViewPager vpWeb;
+    @BindView(R.id.tpv_zan)
+    ThumbUpView zanView;
     private CustomFragmentAdapter mAdapter;
-
+    private int mCurPos;
+    private int mId;
+    private List<Fragment> fragmentList = new ArrayList<>();
 
     public static HomeWebFragment newInstance(ArrayList<ChapterBean> beans, int position) {
         HomeWebFragment f = new HomeWebFragment();
@@ -114,10 +125,51 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
         vpWeb.setPageMargin(30);
         mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
         for (ChapterBean c : beans) {
+//            fragmentList.add(HomeWebPagerFragment.newInstance(c.getLink()));
+//            mAdapter.updateFragment(fragmentList);
             mAdapter.addFragment(HomeWebPagerFragment.newInstance(c.getLink()));
         }
         vpWeb.setAdapter(mAdapter);
         vpWeb.setCurrentItem(pos, true);
+        mCurPos = pos;
+        mId = beans.get(mCurPos).getId();
+        boolean collect = beans.get(mCurPos).isCollect();
+        if (collect) {
+            zanView.setLike();
+        } else {
+            zanView.setUnlike();
+        }
+
+        vpWeb.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                mCurPos = i;
+                boolean collect = beans.get(i).isCollect();
+                if (collect) {
+                    zanView.setLike();
+                } else {
+                    zanView.setUnlike();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
+        zanView.setOnThumbUp(like -> {
+            mId = beans.get(mCurPos).getId();
+            if (like) {
+                mPresenter.addCollect(mId);
+            } else {
+                mPresenter.unCollect(mId);
+            }
+        });
     }
 
     @OnClick(R.id.iv_close)
@@ -193,4 +245,18 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
 
     }
 
+    @Override
+    public void addCollectChapter(BaseEntity entity) {
+        EventBus.getDefault().post(new EventBusData(true, mId), EventBusTags.UPDATE_COLLECT);
+    }
+
+    @Override
+    public void unCollectChapter(BaseEntity entity) {
+        EventBus.getDefault().post(new EventBusData(false, mId), EventBusTags.UPDATE_COLLECT);
+    }
+
+    @Override
+    public void collectError(String msg) {
+
+    }
 }

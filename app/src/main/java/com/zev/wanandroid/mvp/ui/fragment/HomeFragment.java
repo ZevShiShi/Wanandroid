@@ -18,7 +18,6 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ObjectUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -263,7 +262,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         mAdapter.setEnableLoadMore(true);
         mAdapter.setOnLoadMoreListener(() -> {
             rvChapter.postDelayed(() -> {
-                if ((allChapter.size() - topCount) >= totalCount) {
+                if (allChapter.size() >= totalCount) {
                     mAdapter.loadMoreEnd();
                 } else {
                     mPresenter.getChapterList(++page);
@@ -279,12 +278,9 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
                     .putExtra("collect", bean.isCollect()));
 
         });
-        mAdapter.setOnItemLongClickListener(new BaseQuickAdapter.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(BaseQuickAdapter adapter, View view, int position) {
-                showWebPop(position);
-                return false;
-            }
+        mAdapter.setOnItemLongClickListener((adapter, view, position) -> {
+            showWebPop(position);
+            return false;
         });
         mAdapter.setLikeListener((like, pos) -> {
             ChapterBean bean = mAdapter.getData().get(pos);
@@ -335,7 +331,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
     private void addChapterList(ChapterEntity entity) {
         if (ObjectUtils.isEmpty(entity) || ObjectUtils.isEmpty(entity.getDatas())) return;
-        totalCount = entity.getTotal();
+        totalCount += entity.getTotal();
         addChapter(entity.getDatas(), false);
         mAdapter.loadMoreComplete();
         refreshLayout.finishRefresh();
@@ -350,9 +346,9 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
     @Override
     public void getChapterTop(List<Chapter> chapters) {
-        topCount = chapters.size();
+        totalCount = chapters.size();
         addChapterTop(chapters);
-        mPresenter.getChapterList(page);
+        mPresenter.getChapterList(page = 0);
     }
 
     private void addChapterTop(List<Chapter> chapters) {

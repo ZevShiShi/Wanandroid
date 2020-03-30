@@ -1,5 +1,6 @@
 package com.zev.wanandroid.mvp.ui.base;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -84,5 +85,41 @@ public abstract class BaseMvpDialogFragment<P extends IPresenter> extends Dialog
     @Override
     public boolean useEventBus() {
         return true;
+    }
+
+
+    private static final String SAVED_DIALOG_STATE_TAG = "android:savedDialogState";
+
+    /**
+     * 解决DialogFragment内存泄漏
+     *
+     * @param savedInstanceState
+     */
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        if (getShowsDialog()) {
+            setShowsDialog(false);
+        }
+        super.onActivityCreated(savedInstanceState);
+        setShowsDialog(true);
+
+        View view = getView();
+        if (view != null) {
+            if (view.getParent() != null) {
+                throw new IllegalStateException(
+                        "DialogFragment can not be attached to a container view");
+            }
+            getDialog().setContentView(view);
+        }
+        final Activity activity = getActivity();
+        if (activity != null) {
+            getDialog().setOwnerActivity(activity);
+        }
+        if (savedInstanceState != null) {
+            Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
+            if (dialogState != null) {
+                getDialog().onRestoreInstanceState(dialogState);
+            }
+        }
     }
 }

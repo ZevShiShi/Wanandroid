@@ -25,6 +25,7 @@ import com.jess.arms.di.component.AppComponent;
 import com.ldoublem.thumbUplib.ThumbUpView;
 import com.zev.wanandroid.R;
 import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.app.manager.WebViewManager;
 import com.zev.wanandroid.di.component.DaggerWebComponent;
 import com.zev.wanandroid.mvp.contract.WebContract;
@@ -399,14 +400,14 @@ public class WebActivity extends BaseMvpActivity<WebPresenter> implements WebCon
     public void addCollectChapter(BaseEntity entity) {
         zanView.setLike();
         collect = true;
-        EventBus.getDefault().post(true, EventBusTags.UPDATE_COLLECT);
+        EventBus.getDefault().post(new EventBusData(true, id), EventBusTags.UPDATE_COLLECT);
     }
 
     @Override
     public void unCollectChapter(BaseEntity entity) {
         zanView.setUnlike();
         collect = false;
-        EventBus.getDefault().post(false, EventBusTags.UPDATE_COLLECT);
+        EventBus.getDefault().post(new EventBusData(false, id), EventBusTags.UPDATE_COLLECT);
     }
 
     @Override

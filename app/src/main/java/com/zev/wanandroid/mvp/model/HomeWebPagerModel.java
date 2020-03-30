@@ -3,23 +3,21 @@ package com.zev.wanandroid.mvp.model;
 import android.app.Application;
 
 import com.google.gson.Gson;
-import com.jess.arms.di.scope.FragmentScope;
 import com.jess.arms.integration.IRepositoryManager;
 import com.jess.arms.mvp.BaseModel;
-import com.zev.wanandroid.mvp.contract.HomeWebContract;
-import com.zev.wanandroid.mvp.model.api.service.HomeService;
-import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
+
+import com.jess.arms.di.scope.FragmentScope;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
+import com.zev.wanandroid.mvp.contract.HomeWebPagerContract;
 
 
 /**
  * ================================================
  * Description:
  * <p>
- * Created by MVPArmsTemplate on 03/28/2020 17:03
+ * Created by MVPArmsTemplate on 03/30/2020 13:25
  * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
@@ -28,14 +26,14 @@ import io.reactivex.Observable;
  * ================================================
  */
 @FragmentScope
-public class HomeWebModel extends BaseModel implements HomeWebContract.Model {
+public class HomeWebPagerModel extends BaseModel implements HomeWebPagerContract.Model {
     @Inject
     Gson mGson;
     @Inject
     Application mApplication;
 
     @Inject
-    public HomeWebModel(IRepositoryManager repositoryManager) {
+    public HomeWebPagerModel(IRepositoryManager repositoryManager) {
         super(repositoryManager);
     }
 
@@ -44,15 +42,5 @@ public class HomeWebModel extends BaseModel implements HomeWebContract.Model {
         super.onDestroy();
         this.mGson = null;
         this.mApplication = null;
-    }
-
-    @Override
-    public Observable<BaseEntity> addCollectChapter(int id) {
-        return mRepositoryManager.obtainRetrofitService(HomeService.class).addCollectChapter(id);
-    }
-
-    @Override
-    public Observable<BaseEntity> unCollectByChapter(int id) {
-        return mRepositoryManager.obtainRetrofitService(HomeService.class).unCollectByChapter(id);
     }
 }
