@@ -17,13 +17,15 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
-import com.zev.wanandroid.app.AppLifecyclesImpl;
+import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.CustomData;
 import com.zev.wanandroid.di.component.DaggerLoginComponent;
 import com.zev.wanandroid.mvp.contract.LoginContract;
 import com.zev.wanandroid.mvp.model.entity.UserEntity;
 import com.zev.wanandroid.mvp.presenter.LoginPresenter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpActivity;
+
+import org.simple.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -164,8 +166,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
 
     @Override
     public void loginSuccess(UserEntity entity) {
-        AppLifecyclesImpl.isLogin = true;
         Timber.d("loginSuccess==%s", entity.toString());
+        EventBus.getDefault().post(true, EventBusTags.RELOAD_DATA);
         setResult(CustomData.USER_RESULT);
         finish();
     }

@@ -238,7 +238,9 @@ public class HomeWebPagerFragment extends BaseMvpFragment<HomeWebPagerPresenter>
 
     @Override
     public void onDestroyView() {
-        webManager.destroyWeb();
+        if (webManager != null) {
+            webManager.destroyWeb();
+        }
         super.onDestroyView();
     }
 

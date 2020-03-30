@@ -21,7 +21,6 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ImageUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.jess.arms.di.component.AppComponent;
@@ -32,6 +31,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.zev.wanandroid.R;
 import com.zev.wanandroid.app.AppLifecyclesImpl;
+import com.zev.wanandroid.app.EventBusTags;
 import com.zev.wanandroid.app.common.CustomData;
 import com.zev.wanandroid.di.component.DaggerMyComponent;
 import com.zev.wanandroid.mvp.contract.MyContract;
@@ -42,7 +42,10 @@ import com.zev.wanandroid.mvp.ui.activity.MyCollectActivity;
 import com.zev.wanandroid.mvp.ui.activity.MyScoreActivity;
 import com.zev.wanandroid.mvp.ui.activity.MyShardActivity;
 import com.zev.wanandroid.mvp.ui.activity.ScoreRankActivity;
+import com.zev.wanandroid.mvp.ui.activity.SettingsActivity;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpLazyFragment;
+
+import org.simple.eventbus.Subscriber;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -200,13 +203,32 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
             switch (position) {
                 case 0:
+                    if (!AppLifecyclesImpl.checkLogin()) {
+                        startActivityForResult(new Intent(getActivity(), LoginActivity.class), CustomData.USER_REQUEST);
+                        return;
+                    }
                     ActivityUtils.startActivity(MyScoreActivity.class);
                     break;
                 case 1:
+                    if (!AppLifecyclesImpl.checkLogin()) {
+                        startActivityForResult(new Intent(getActivity(), LoginActivity.class), CustomData.USER_REQUEST);
+                        return;
+                    }
                     ActivityUtils.startActivity(MyShardActivity.class);
                     break;
                 case 2:
+                    if (!AppLifecyclesImpl.checkLogin()) {
+                        startActivityForResult(new Intent(getActivity(), LoginActivity.class), CustomData.USER_REQUEST);
+                        return;
+                    }
                     ActivityUtils.startActivity(MyCollectActivity.class);
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    ActivityUtils.startActivity(SettingsActivity.class);
                     break;
                 default:
                     break;
@@ -217,7 +239,7 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
 
     @OnClick(R.id.ll_profile)
     public void onSelectHeader(View view) {
-        if (AppLifecyclesImpl.isLogin) {
+        if (AppLifecyclesImpl.checkLogin()) {
             showAlbum();
         } else {
             startActivityForResult(new Intent(getActivity(), LoginActivity.class), CustomData.USER_REQUEST);
@@ -275,7 +297,6 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
 
             }
         } else if (resultCode == CustomData.USER_RESULT) {
-            ToastUtils.showShort("hahaha");
             mPresenter.getUserInfo();
         }
     }
@@ -286,7 +307,14 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
     }
 
     private void showUser(UserinfoEntity entity) {
-        if (ObjectUtils.isEmpty(entity)) return;
+        if (ObjectUtils.isEmpty(entity) || ObjectUtils.isEmpty(entity.getUsername())) {
+            tvId.setText(R.string.user_score_default);
+            tvLevel.setText(R.string.user_level_default);
+            tvUsername.setText(R.string.app_go_login);
+            civProfile.setImageResource(R.color.white);
+            llHeader.setBackgroundColor(getResources().getColor(R.color.tool_bar_color));
+            return;
+        }
         tvId.setText(String.valueOf(entity.getUserId()));
         tvLevel.setText("等级：" + entity.getLevel() + "排名：" + entity.getRank());
         tvUsername.setText(entity.getUsername());
@@ -302,6 +330,11 @@ public class MyFragment extends BaseMvpLazyFragment<MyPresenter> implements MyCo
     @Override
     public void getUserInfoError(String msg) {
 //        ToastUtils.showShort(msg);
+    }
+
+    @Subscriber(tag = EventBusTags.RELOAD_DATA)
+    public void onExitLogin(boolean exit) {
+        showUser(null);
     }
 
 

@@ -47,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="去登陆"
+                android:text="@string/app_go_login"
                 android:textColor="@color/color_dbdbdb"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -57,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="积分：---"
+            android:text="@string/user_score_default"
             android:textColor="@color/color_dbdbdb"
             android:textSize="12sp" />
 
@@ -68,7 +68,7 @@
             android:layout_marginTop="5dp"
             android:textColor="@color/color_dbdbdb"
             android:textSize="12sp"
-            tools:text="等级：---\t排名：---" />
+            tools:text="@string/user_level_default" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

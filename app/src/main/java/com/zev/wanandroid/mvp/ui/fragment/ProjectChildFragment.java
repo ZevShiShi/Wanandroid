@@ -28,6 +28,7 @@ import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
 import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.ProjectChildPresenter;
+import com.zev.wanandroid.mvp.ui.activity.LoginActivity;
 import com.zev.wanandroid.mvp.ui.activity.WebExActivity;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterAdapter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
@@ -39,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import timber.log.Timber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
@@ -67,7 +67,7 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
 
     ChapterAdapter mAdapter;
 
-
+    private int cid;
     private int totalCount;
     private int page = 1;
     private List<ChapterBean> allChapter = new ArrayList<>();
@@ -171,7 +171,7 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
 
     @Override
     protected void lazyLoadData() {
-        int cid = getArguments().getInt("cid");
+        cid = getArguments().getInt("cid");
         rvPro.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new ChapterAdapter(R.layout.project_list_item);
         mAdapter.setEnableLoadMore(true);
@@ -191,8 +191,11 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
                     .putExtra("collect", bean.isCollect()));
         });
         mAdapter.setLikeListener((like, pos) -> {
+            if (!AppLifecyclesImpl.checkLogin()) {
+                ActivityUtils.startActivity(LoginActivity.class);
+                return;
+            }
             ChapterBean bean = mAdapter.getData().get(pos);
-            Timber.d("setLikeListener===" + bean.getTitle() + "===" + bean.isCollect() + "==" + pos);
             if (like) {
                 mPresenter.addCollect(bean.getId());
             } else {
@@ -219,12 +222,14 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
         if (ObjectUtils.isEmpty(entity) || ObjectUtils.isEmpty(entity.getDatas())) return;
         if (entity.getCurPage() == 1) {
             allChapter.clear();
-            mAdapter.notifyDataSetChanged();
+            if (mAdapter != null)
+                mAdapter.notifyDataSetChanged();
             refreshLayout.finishRefresh();
         }
         totalCount = entity.getTotal();
         addChapter(entity.getDatas(), false);
-        mAdapter.loadMoreComplete();
+        if (mAdapter != null)
+            mAdapter.loadMoreComplete();
         if (pbLoading.getVisibility() == View.VISIBLE)
             pbLoading.setVisibility(View.GONE);
     }
@@ -290,5 +295,11 @@ public class ProjectChildFragment extends BaseMvpLazyFragment<ProjectChildPresen
             }
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+
+    @Subscriber(tag = EventBusTags.RELOAD_DATA)
+    public void onExitLogin(boolean exit) {
+        mPresenter.getProjectList(page = 1, cid);
     }
 }

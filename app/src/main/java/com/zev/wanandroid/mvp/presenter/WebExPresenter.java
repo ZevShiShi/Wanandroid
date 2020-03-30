@@ -2,14 +2,17 @@ package com.zev.wanandroid.mvp.presenter;
 
 import android.app.Application;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.scope.ActivityScope;
 import com.jess.arms.http.imageloader.ImageLoader;
 import com.jess.arms.integration.AppManager;
 import com.jess.arms.mvp.BasePresenter;
+import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.utils.RxUtils;
 import com.zev.wanandroid.mvp.contract.WebExContract;
 import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
+import com.zev.wanandroid.mvp.ui.activity.LoginActivity;
 
 import javax.inject.Inject;
 
@@ -55,6 +58,10 @@ public class WebExPresenter extends BasePresenter<WebExContract.Model, WebExCont
     }
 
     public void addCollect(int id) {
+        if (!AppLifecyclesImpl.checkLogin()) {
+            ActivityUtils.startActivity(LoginActivity.class);
+            return;
+        }
         mModel.addCollectChapter(id)
                 .compose(RxUtils.applySchedulers(mRootView))
                 .subscribe(new ErrorHandleSubscriber<BaseEntity>(mErrorHandler) {

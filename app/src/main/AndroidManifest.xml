@@ -22,7 +22,8 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="p">
-        <activity android:name=".mvp.ui.activity.SearchActivity"></activity>
+        <activity android:name=".mvp.ui.activity.SettingsActivity"></activity>
+        <activity android:name=".mvp.ui.activity.SearchActivity" />
         <activity android:name=".mvp.ui.activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,7 +46,7 @@
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".mvp.ui.activity.MainActivity"></activity>
+        <activity android:name=".mvp.ui.activity.MainActivity" />
         <activity android:name=".mvp.ui.activity.LoginActivity" /> <!-- <uses-library android:name="com.google.android.things" /> -->
         <!--
          只要依赖 AutoSize 就必须填写设计图尺寸, 否则报错, 不想使用 AutoSize 就不要依赖 AutoSize

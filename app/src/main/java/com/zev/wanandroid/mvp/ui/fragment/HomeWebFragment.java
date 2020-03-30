@@ -9,9 +9,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -31,11 +33,11 @@ import com.zev.wanandroid.mvp.presenter.HomeWebPresenter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
 import com.zev.wanandroid.mvp.ui.adapter.CustomFragmentAdapter;
 import com.zev.wanandroid.mvp.ui.base.BaseMvpDialogFragment;
+import com.zev.wanandroid.mvp.ui.view.LikeLayout;
 
 import org.simple.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -62,10 +64,13 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
     ViewPager vpWeb;
     @BindView(R.id.tpv_zan)
     ThumbUpView zanView;
+    @BindView(R.id.like_layout)
+    LikeLayout likeLayout;
+
+    private GestureDetector gestureScanner;
     private CustomFragmentAdapter mAdapter;
     private int mCurPos;
     private int mId;
-    private List<Fragment> fragmentList = new ArrayList<>();
 
     public static HomeWebFragment newInstance(ArrayList<ChapterBean> beans, int position) {
         HomeWebFragment f = new HomeWebFragment();
@@ -170,6 +175,19 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
                 mPresenter.unCollect(mId);
             }
         });
+
+        // 双击webview监听
+        gestureScanner = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                likeLayout.addLoveView(e.getRawX(), e.getRawY());
+                if (!collect) {
+                    mPresenter.addCollect(mId);
+                }
+                return true;
+            }
+        });
+        vpWeb.setOnTouchListener((v, event) -> gestureScanner.onTouchEvent(event));
     }
 
     @OnClick(R.id.iv_close)

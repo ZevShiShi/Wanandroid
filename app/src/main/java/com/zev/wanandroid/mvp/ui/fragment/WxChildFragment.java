@@ -28,6 +28,7 @@ import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
 import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.WxChildPresenter;
+import com.zev.wanandroid.mvp.ui.activity.LoginActivity;
 import com.zev.wanandroid.mvp.ui.activity.WebExActivity;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterAdapter;
 import com.zev.wanandroid.mvp.ui.adapter.ChapterBean;
@@ -39,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import timber.log.Timber;
 
 import static com.jess.arms.utils.Preconditions.checkNotNull;
 
@@ -67,6 +67,7 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
 
     private int totalCount;
     private int page = 1;
+    private int chapterId;
     private List<ChapterBean> allChapter = new ArrayList<>();
     private ChapterAdapter mAdapter;
 
@@ -166,9 +167,10 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
 
     }
 
+
     @Override
     protected void lazyLoadData() {
-        int chapterId = getArguments().getInt("chapterId");
+        chapterId = getArguments().getInt("chapterId");
         rvWxChapter.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new ChapterAdapter(R.layout.project_list_item);
         mAdapter.setEnableLoadMore(true);
@@ -190,8 +192,11 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
                     .putExtra("collect", bean.isCollect()));
         });
         mAdapter.setLikeListener((like, pos) -> {
-            ChapterBean bean = mAdapter.getData().get(pos);// 去掉header
-            Timber.d("setLikeListener===" + bean.getTitle() + "===" + bean.isCollect() + "==" + pos);
+            if (!AppLifecyclesImpl.checkLogin()) {
+                ActivityUtils.startActivity(LoginActivity.class);
+                return;
+            }
+            ChapterBean bean = mAdapter.getData().get(pos);
             if (like) {
                 mPresenter.addCollect(bean.getId());
             } else {
@@ -292,5 +297,10 @@ public class WxChildFragment extends BaseMvpLazyFragment<WxChildPresenter> imple
             }
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Subscriber(tag = EventBusTags.RELOAD_DATA)
+    public void onExitLogin(boolean exit) {
+        mPresenter.getChapterByWx(chapterId, page = 1);
     }
 }

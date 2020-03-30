@@ -16,5 +16,5 @@ public interface EventBusTags {
 
     String UPDATE_COLLECT = "update_collect";
 
-
+    String RELOAD_DATA = "reload_data";
 }

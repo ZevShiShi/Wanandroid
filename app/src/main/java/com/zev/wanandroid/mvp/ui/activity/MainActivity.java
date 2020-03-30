@@ -7,15 +7,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 
-import com.blankj.utilcode.util.ObjectUtils;
-import com.blankj.utilcode.util.SPUtils;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.zev.wanandroid.R;
-import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.di.component.DaggerMainComponent;
 import com.zev.wanandroid.mvp.contract.MainContract;
 import com.zev.wanandroid.mvp.model.entity.TabEntity;
@@ -89,9 +86,6 @@ public class MainActivity extends BaseMvpActivity<MainPresenter> implements Main
 
     @Override
     public void initData(@Nullable Bundle savedInstanceState) {
-        String cookie = SPUtils.getInstance().getString("cookie");
-        AppLifecyclesImpl.isLogin = ObjectUtils.isNotEmpty(cookie);
-
         setSwipeBackEnable(false);
         mAdapter = new CustomFragmentAdapter(getSupportFragmentManager());
         mAdapter.addFragment(HomeFragment.newInstance());

@@ -27,6 +27,7 @@ import com.youth.banner.Transformer;
 import com.zev.wanandroid.R;
 import com.zev.wanandroid.app.AppLifecyclesImpl;
 import com.zev.wanandroid.app.EventBusTags;
+import com.zev.wanandroid.app.common.CustomData;
 import com.zev.wanandroid.app.common.EventBusData;
 import com.zev.wanandroid.app.utils.GlideImageLoader;
 import com.zev.wanandroid.di.component.DaggerHomeComponent;
@@ -36,6 +37,7 @@ import com.zev.wanandroid.mvp.model.entity.Chapter;
 import com.zev.wanandroid.mvp.model.entity.ChapterEntity;
 import com.zev.wanandroid.mvp.model.entity.base.BaseEntity;
 import com.zev.wanandroid.mvp.presenter.HomePresenter;
+import com.zev.wanandroid.mvp.ui.activity.LoginActivity;
 import com.zev.wanandroid.mvp.ui.activity.SearchActivity;
 import com.zev.wanandroid.mvp.ui.activity.WebActivity;
 import com.zev.wanandroid.mvp.ui.activity.WebExActivity;
@@ -283,6 +285,10 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
             return false;
         });
         mAdapter.setLikeListener((like, pos) -> {
+            if (!AppLifecyclesImpl.checkLogin()) {
+                startActivityForResult(new Intent(getActivity(), LoginActivity.class), CustomData.USER_REQUEST);
+                return;
+            }
             ChapterBean bean = mAdapter.getData().get(pos);
             if (like) {
                 mPresenter.addCollect(bean.getId());
@@ -307,6 +313,15 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         addChapterList(entity);
         mPresenter.getBanner();
         mPresenter.getChapterTop();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CustomData.USER_REQUEST && resultCode == CustomData.USER_RESULT) {
+            mPresenter.getBanner();
+            mPresenter.getChapterTop();
+        }
     }
 
     private void showWebPop(int position) {
@@ -411,4 +426,10 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         }
     }
 
+
+    @Subscriber(tag = EventBusTags.RELOAD_DATA)
+    public void onExitLogin(boolean exit) {
+        mPresenter.getBanner();
+        mPresenter.getChapterTop();
+    }
 }

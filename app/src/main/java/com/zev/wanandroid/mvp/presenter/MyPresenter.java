@@ -66,6 +66,7 @@ public class MyPresenter extends BasePresenter<MyContract.Model, MyContract.View
                             AppLifecyclesImpl.getDiskLruCacheUtil().put("userinfo", entity.getData());
                             mRootView.getUserInfo(entity.getData());
                         } else {
+                            AppLifecyclesImpl.getDiskLruCacheUtil().put("userinfo", new UserinfoEntity());
                             mRootView.getUserInfoError(entity.getErrorMsg());
                         }
                     }

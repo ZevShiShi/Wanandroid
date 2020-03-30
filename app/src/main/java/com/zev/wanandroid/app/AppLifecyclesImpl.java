@@ -5,6 +5,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDex;
 
+import com.blankj.utilcode.util.ObjectUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.jess.arms.base.delegate.AppLifecycles;
 import com.jess.arms.integration.cache.IntelligentCache;
 import com.jess.arms.utils.ArmsUtils;
@@ -28,9 +30,6 @@ import timber.log.Timber;
 public class AppLifecyclesImpl implements AppLifecycles {
 
     private static Application app;
-
-    public static boolean isLogin = false;
-
     private static DiskLruCacheUtil diskLruCacheUtil;
 
     @Override
@@ -77,6 +76,12 @@ public class AppLifecyclesImpl implements AppLifecycles {
         ArmsUtils.obtainAppComponentFromContext(application).extras()
                 .put(IntelligentCache.getKeyOfKeep(RefWatcher.class.getName())
                         , BuildConfig.USE_CANARY ? LeakCanary.install(application) : RefWatcher.DISABLED);
+    }
+
+
+    public static boolean checkLogin() {
+        String cookie = SPUtils.getInstance().getString("cookie");
+        return ObjectUtils.isNotEmpty(cookie);
     }
 
     @Override
