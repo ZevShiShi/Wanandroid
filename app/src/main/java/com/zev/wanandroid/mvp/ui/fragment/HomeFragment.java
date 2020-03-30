@@ -263,13 +263,7 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         mAdapter = new ChapterAdapter(R.layout.project_list_item);
         mAdapter.setEnableLoadMore(true);
         mAdapter.setOnLoadMoreListener(() -> {
-            rvChapter.postDelayed(() -> {
-                if (allChapter.size() >= totalCount) {
-                    mAdapter.loadMoreEnd();
-                } else {
-                    mPresenter.getChapterList(++page);
-                }
-            }, 1000);
+            rvChapter.postDelayed(this::loadMore, 1000);
         }, rvChapter);
         mAdapter.disableLoadMoreIfNotFullPage();
         mAdapter.setOnItemClickListener((adapter, view, position) -> {
@@ -315,6 +309,20 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         mPresenter.getChapterTop();
     }
 
+    public void loadMore() {
+        if (allChapter.size() >= totalCount) {
+            mAdapter.loadMoreEnd();
+        } else {
+            mPresenter.getChapterList(++page);
+        }
+    }
+
+    public void scrollToPostion(int position) {
+        if (rvChapter != null) {
+            rvChapter.scrollToPosition(position + 1);
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -325,7 +333,9 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
     }
 
     private void showWebPop(int position) {
-        homeWebFragment = HomeWebFragment.newInstance(allChapter, position);
+        ArrayList<ChapterBean> newList = new ArrayList<>();
+        newList.addAll(allChapter);
+        homeWebFragment = HomeWebFragment.newInstance(newList, position);
         homeWebFragment.show(getChildFragmentManager(), "HomeWeb");
     }
 
@@ -350,6 +360,9 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
         addChapter(entity.getDatas(), false);
         mAdapter.loadMoreComplete();
         refreshLayout.finishRefresh();
+        if (homeWebFragment != null && homeWebFragment.isShow()) {
+            homeWebFragment.notifyData(allChapter);
+        }
     }
 
     @Override
@@ -383,6 +396,10 @@ public class HomeFragment extends BaseMvpLazyFragment<HomePresenter> implements 
 
     @Override
     public void collectError(String msg) {
+    }
+
+    public ArrayList<ChapterBean> getAllChapter() {
+        return allChapter;
     }
 
     private void addChapter(List<Chapter> chapters, boolean isTop) {

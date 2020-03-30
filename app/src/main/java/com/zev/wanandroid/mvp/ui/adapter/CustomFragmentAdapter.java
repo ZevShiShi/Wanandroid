@@ -81,7 +81,6 @@ public class CustomFragmentAdapter extends FragmentPagerAdapter {
         }
         fragmentList.clear();
         notifyDataSetChanged();
-        fragmentList = null;
     }
 
     public List<Fragment> getData() {

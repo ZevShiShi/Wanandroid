@@ -18,6 +18,7 @@ import android.view.WindowManager;
 
 import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ScreenUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.jess.arms.di.component.AppComponent;
 import com.jess.arms.utils.ArmsUtils;
 import com.ldoublem.thumbUplib.ThumbUpView;
@@ -36,6 +37,7 @@ import org.simple.eventbus.EventBus;
 import org.simple.eventbus.Subscriber;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -66,6 +68,9 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
     private CustomFragmentAdapter mAdapter;
     private int mCurPos;
     private int mId;
+    private ArrayList<ChapterBean> beans;
+    private List<Fragment> fragmentList = new ArrayList<>();
+
 
     public static HomeWebFragment newInstance(ArrayList<ChapterBean> beans, int position) {
         HomeWebFragment f = new HomeWebFragment();
@@ -114,7 +119,7 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
 
     @Override
     public void initData(@Nullable Bundle savedInstanceState) {
-        ArrayList<ChapterBean> beans = getArguments().getParcelableArrayList("chapter");
+        beans = getArguments().getParcelableArrayList("chapter");
         int pos = getArguments().getInt("pos", 0);
         if (ObjectUtils.isEmpty(beans)) {
             dismiss();
@@ -125,8 +130,9 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
         vpWeb.setPageMargin(30);
         mAdapter = new CustomFragmentAdapter(getChildFragmentManager());
         for (ChapterBean c : beans) {
-            mAdapter.addFragment(HomeWebPagerFragment.newInstance(c));
+            fragmentList.add(HomeWebPagerFragment.newInstance(c));
         }
+        mAdapter.updateFragment(fragmentList);
         vpWeb.setAdapter(mAdapter);
         vpWeb.setCurrentItem(pos, true);
         mCurPos = pos;
@@ -152,6 +158,15 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
                     zanView.setLike();
                 } else {
                     zanView.setUnlike();
+                }
+
+                //加载到倒数第3个数据时，加载更多数据联动DialogFragemnt
+                if (getParentFragment() != null && getParentFragment() instanceof HomeFragment) {
+                    ((HomeFragment) getParentFragment()).scrollToPostion(i);
+                    if (i == beans.size() - 6) {
+                        ((HomeFragment) getParentFragment()).loadMore();
+                        ToastUtils.showShort("更新更多数据==" + beans.size());
+                    }
                 }
             }
 
@@ -183,6 +198,29 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
 //            }
 //        });
 //        flWeb.setOnTouchListener((v, event) -> gestureScanner.onTouchEvent(event));
+    }
+
+
+    public boolean isShow() {
+        return getDialog() != null && getDialog().isShowing();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param chapterBeans
+     */
+    public void notifyData(ArrayList<ChapterBean> chapterBeans) {
+        beans.clear();
+        fragmentList.clear();
+        beans.addAll(chapterBeans);
+        for (ChapterBean c : beans) {
+            fragmentList.add(HomeWebPagerFragment.newInstance(c));
+        }
+        mAdapter.updateFragment(fragmentList);
+        ToastUtils.showShort("更新更多数据==" + beans.size());
+        if (vpWeb != null)
+            vpWeb.setCurrentItem(mCurPos);
     }
 
     @Subscriber(tag = EventBusTags.REFRESH_WEB_COLLECT)
@@ -290,7 +328,6 @@ public class HomeWebFragment extends BaseMvpDialogFragment<HomeWebPresenter> imp
     public void dismiss() {
         if (mAdapter != null) {
             mAdapter.clearAll();
-            mAdapter = null;
         }
         super.dismiss();
     }
